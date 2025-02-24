@@ -199,9 +199,6 @@ void HierarchyAnalysisAlgorithm::EventAnalysisOutput(const LArHierarchyHelper::M
         const float max{std::numeric_limits<float>::max()};
         const CartesianVector rootRecoVtx = (pRootVertex != nullptr) ? pRootVertex->GetPosition() : CartesianVector(max, max, max);
 
-        // Get the interaction nodes
-        const LArHierarchyHelper::RecoHierarchy::NodeVector &interactions = recoHierarchy.GetInteractions(pRoot);
-
         // Get reco nodes for each root PFO
         LArHierarchyHelper::RecoHierarchy::NodeVector recoNodes;
         recoHierarchy.GetFlattenedNodes(pRoot, recoNodes);
@@ -212,8 +209,8 @@ void HierarchyAnalysisAlgorithm::EventAnalysisOutput(const LArHierarchyHelper::M
             // Get the list of PFOs for each node
             const PfoList recoParticles = pRecoNode->GetRecoParticles();
 
-            // Is this an interaction node?
-            const int isRecoPrimary = (interactions.end() != std::find(interactions.begin(), interactions.end(), pRecoNode)) ? 1 : 0;
+            // Is this a primary node (hierarchy tier = 1)?
+            const int isRecoPrimary = (pRecoNode->GetHierarchyTier() == 1) ? 1 : 0;
 
             // Get individual PFOs
             for (const ParticleFlowObject *pPfo : recoParticles)
@@ -285,6 +282,7 @@ void HierarchyAnalysisAlgorithm::EventAnalysisOutput(const LArHierarchyHelper::M
                 nUHitsVect.emplace_back(nUHits);
                 nVHitsVect.emplace_back(nVHits);
                 nWHitsVect.emplace_back(nWHits);
+
                 // Assume all PFOs are tracks for now
                 const int isShower{0};
                 isShowerVect.emplace_back(isShower);
