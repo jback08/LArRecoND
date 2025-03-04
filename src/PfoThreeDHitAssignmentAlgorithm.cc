@@ -11,6 +11,7 @@
 #include "Objects/ParticleFlowObject.h"
 #include "Pandora/AlgorithmHeaders.h"
 
+#include "Pandora/PandoraInternal.h"
 #include "larpandoracontent/LArHelpers/LArClusterHelper.h"
 #include "larpandoracontent/LArHelpers/LArGeometryHelper.h"
 #include "larpandoracontent/LArHelpers/LArPfoHelper.h"
@@ -158,74 +159,28 @@ pandora::StatusCode PfoThreeDHitAssignmentAlgorithm::Run()
     end = std::chrono::high_resolution_clock::now();
     std::cout << "Time to match 3D hits to PFOs: " << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << " ms" << std::endl;
 
-    //         for (const CaloHit *const pHit3D : availableHits)
-    //         {
-    //             const CartesianVector pos3D = pHit3D->GetPositionVector();
-    //             for (const CaloHit *const pHit2D : theseCaloHitsU)
-    //             {
-    //                 const CartesianVector pos2D = pHit2D->GetPositionVector();
-    //                 if (std::fabs(pos3D.GetX() - pos2D.GetX()) > std::numeric_limits<float>::epsilon())
-    //                     continue;
-    //                 if (std::fabs(availableHitUPos.at(pHit3D) - pos2D.GetZ()) > std::numeric_limits<float>::epsilon())
-    //                     continue;
-    //                 availableHitToPfoU[pHit3D] = pPfo;
-    //                 break;
-    //             }
-
-    //             for (const CaloHit *const pHit2D : theseCaloHitsV)
-    //             {
-    //                 const CartesianVector pos2D = pHit2D->GetPositionVector();
-    //                 if (std::fabs(pos3D.GetX() - pos2D.GetX()) > std::numeric_limits<float>::epsilon())
-    //                     continue;
-    //                 if (std::fabs(availableHitVPos.at(pHit3D) - pos2D.GetZ()) > std::numeric_limits<float>::epsilon())
-    //                     continue;
-    //                 availableHitToPfoV[pHit3D] = pPfo;
-    //                 break;
-    //             }
-
-    //             for (const CaloHit *const pHit2D : theseCaloHitsW)
-    //             {
-    //                 const CartesianVector pos2D = pHit2D->GetPositionVector();
-    //                 if (std::fabs(pos3D.GetX() - pos2D.GetX()) > std::numeric_limits<float>::epsilon())
-    //                     continue;
-    //                 if (std::fabs(availableHitWPos.at(pHit3D) - pos2D.GetZ()) > std::numeric_limits<float>::epsilon())
-    //                     continue;
-    //                 availableHitToPfoW[pHit3D] = pPfo;
-    //                 break;
-    //             }
-    //         }
-    //     }
-    // }
-
     CaloHitList threeDHitsMatchedToOnePfo;
     CaloHitList threeDHitsMatchedToMultiPfos;
 
-    std::map<const CaloHit *, PfoVector> hits3DToPfos;
+    std::map<const CaloHit *, PfoSet> hits3DToPfosSets;
     for (const CaloHit *const pCaloHit3D : availableHits)
     {
-        PfoVector matchedPfos;
+        PfoSet matchedPfos;
 
-        // For U we can always add the pfo as it is first
-        if (availableHitToPfoU.count(pCaloHit3D))
-        {
-            if (std::find(matchedPfos.begin(), matchedPfos.end(), availableHitToPfoU.at(pCaloHit3D)) == matchedPfos.end())
-                matchedPfos.emplace_back(availableHitToPfoU.at(pCaloHit3D));
-        }
+        auto uIter = availableHitToPfoU.find(pCaloHit3D);
+        if (uIter != availableHitToPfoU.end())
+            matchedPfos.insert(uIter->second);
 
-        if (availableHitToPfoV.count(pCaloHit3D))
-        {
-            if (std::find(matchedPfos.begin(), matchedPfos.end(), availableHitToPfoV.at(pCaloHit3D)) == matchedPfos.end())
-                matchedPfos.emplace_back(availableHitToPfoV.at(pCaloHit3D));
-        }
+        auto vIter = availableHitToPfoV.find(pCaloHit3D);
+        if (vIter != availableHitToPfoV.end())
+            matchedPfos.insert(vIter->second);
 
-        if (availableHitToPfoW.count(pCaloHit3D))
-        {
-            if (std::find(matchedPfos.begin(), matchedPfos.end(), availableHitToPfoW.at(pCaloHit3D)) == matchedPfos.end())
-                matchedPfos.emplace_back(availableHitToPfoW.at(pCaloHit3D));
-        }
+        auto wIter = availableHitToPfoW.find(pCaloHit3D);
+        if (wIter != availableHitToPfoW.end())
+            matchedPfos.insert(wIter->second);
 
-        if (!hits3DToPfos.count(pCaloHit3D))
-            hits3DToPfos[pCaloHit3D] = matchedPfos;
+        if (!hits3DToPfosSets.count(pCaloHit3D))
+            hits3DToPfosSets[pCaloHit3D] = matchedPfos;
 
         const unsigned int nPfos(matchedPfos.size());
         if (0 == nPfos)
@@ -237,6 +192,11 @@ pandora::StatusCode PfoThreeDHitAssignmentAlgorithm::Run()
     }
     end = std::chrono::high_resolution_clock::now();
     std::cout << "Time to categorize 3D hits: " << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << " ms" << std::endl;
+
+    // Swap sets to vectors for easier access
+    std::map<const CaloHit *, PfoVector> hits3DToPfos;
+    for (const auto &hitToPfos : hits3DToPfosSets)
+        hits3DToPfos[hitToPfos.first] = PfoVector(hitToPfos.second.begin(), hitToPfos.second.end());
 
     start = std::chrono::high_resolution_clock::now();
     std::map<const ParticleFlowObject *, CaloHitList> pfoToHits;
