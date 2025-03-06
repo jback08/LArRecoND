@@ -18,7 +18,6 @@
 
 #include "PfoThreeDHitAssignmentAlgorithm.h"
 
-#include <chrono>
 #include <limits>
 
 using namespace pandora;
@@ -32,7 +31,6 @@ PfoThreeDHitAssignmentAlgorithm::PfoThreeDHitAssignmentAlgorithm() : m_inputCalo
 
 pandora::StatusCode PfoThreeDHitAssignmentAlgorithm::Run()
 {
-    auto start = std::chrono::high_resolution_clock::now();
     if (PandoraContentApi::GetSettings(*this)->ShouldDisplayAlgorithmInfo())
         std::cout << "----> Running Algorithm: " << this->GetInstanceName() << ", " << this->GetType() << std::endl;
 
@@ -41,10 +39,6 @@ pandora::StatusCode PfoThreeDHitAssignmentAlgorithm::Run()
     const CaloHitList *pCaloHits3D{nullptr};
     PANDORA_THROW_RESULT_IF(STATUS_CODE_SUCCESS, !=, PandoraContentApi::GetList(*this, m_inputCaloHitList3DName, pCaloHits3D));
 
-    auto end = std::chrono::high_resolution_clock::now();
-    std::cout << "Time to get 3D hit list: " << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << " ms" << std::endl;
-
-    start = std::chrono::high_resolution_clock::now();
     CaloHitList availableHits;
     std::map<const CaloHit *, float> availableHitUPos, availableHitVPos, availableHitWPos;
     for (const CaloHit *pCaloHit : (*pCaloHits3D))
@@ -58,10 +52,7 @@ pandora::StatusCode PfoThreeDHitAssignmentAlgorithm::Run()
         availableHitVPos[pCaloHit] = PandoraContentApi::GetPlugins(*this)->GetLArTransformationPlugin()->YZtoV(pos3D.GetY(), pos3D.GetZ());
         availableHitWPos[pCaloHit] = PandoraContentApi::GetPlugins(*this)->GetLArTransformationPlugin()->YZtoW(pos3D.GetY(), pos3D.GetZ());
     }
-    end = std::chrono::high_resolution_clock::now();
-    std::cout << "Time to process available hits: " << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << " ms" << std::endl;
 
-    start = std::chrono::high_resolution_clock::now();
     // Maps to keep track of which 3D hit matches to a 2D hit in a given pfo
     std::map<const ParticleFlowObject *, std::string> pfoToClusterListName;
     std::map<const CaloHit *, const ParticleFlowObject *> availableHitToPfoU, availableHitToPfoV, availableHitToPfoW;
@@ -156,9 +147,6 @@ pandora::StatusCode PfoThreeDHitAssignmentAlgorithm::Run()
         }
     }
 
-    end = std::chrono::high_resolution_clock::now();
-    std::cout << "Time to match 3D hits to PFOs: " << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << " ms" << std::endl;
-
     CaloHitList threeDHitsMatchedToOnePfo;
     CaloHitList threeDHitsMatchedToMultiPfos;
 
@@ -190,15 +178,12 @@ pandora::StatusCode PfoThreeDHitAssignmentAlgorithm::Run()
         else
             threeDHitsMatchedToMultiPfos.emplace_back(pCaloHit3D);
     }
-    end = std::chrono::high_resolution_clock::now();
-    std::cout << "Time to categorize 3D hits: " << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << " ms" << std::endl;
 
     // Swap sets to vectors for easier access
     std::map<const CaloHit *, PfoVector> hits3DToPfos;
     for (const auto &hitToPfos : hits3DToPfosSets)
         hits3DToPfos[hitToPfos.first] = PfoVector(hitToPfos.second.begin(), hitToPfos.second.end());
 
-    start = std::chrono::high_resolution_clock::now();
     std::map<const ParticleFlowObject *, CaloHitList> pfoToHits;
 
     // Deal with the unambiguous 3D hits first
@@ -257,15 +242,10 @@ pandora::StatusCode PfoThreeDHitAssignmentAlgorithm::Run()
             pfoToHits[pfoList[bestIndex]] = CaloHitList();
         pfoToHits[pfoList[bestIndex]].emplace_back(pCaloHit3D);
     }
-    end = std::chrono::high_resolution_clock::now();
-    std::cout << "Time to process matched 3D hits: " << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << " ms" << std::endl;
 
-    start = std::chrono::high_resolution_clock::now();
     // Assign the hits
     for (auto const &pfoPair : pfoToHits)
         AddHitsToPfo(pfoPair.first, pfoPair.second, pfoToClusterListName.at(pfoPair.first));
-    end = std::chrono::high_resolution_clock::now();
-    std::cout << "Time to assign hits to PFOs: " << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << " ms" << std::endl;
 
     return STATUS_CODE_SUCCESS;
 }
