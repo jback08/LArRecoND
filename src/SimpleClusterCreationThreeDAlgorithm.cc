@@ -64,17 +64,11 @@ void SimpleClusterCreationThreeDAlgorithm::BuildAssociationMap(const CaloHitList
     for (const auto &node : hitKDNode2DList)
         nodeToHitMap[node.data] = static_cast<const CaloHit *>(node.data);
 
-    // Create a hit to index map for quicker lookups
-    std::unordered_map<const CaloHit *, size_t> hitToIndexMap;
-    size_t index = 0;
-    for (const CaloHit *const pCaloHit : allCaloHits)
-        hitToIndexMap[pCaloHit] = index++;
-
     // Use KD-tree to find nearby hits for each hit
     for (const CaloHit *const pCaloHitI : allCaloHits)
     {
         // Calculate search region based on clustering window
-        const float searchDistance = std::sqrt(m_clusteringWindowSquared);
+        const float searchDistance(std::sqrt(m_clusteringWindowSquared));
         KDTreeBox searchRegionHits = build_2d_kd_search_region(pCaloHitI, searchDistance, searchDistance);
 
         // Find hits in the search region
@@ -93,7 +87,7 @@ void SimpleClusterCreationThreeDAlgorithm::BuildAssociationMap(const CaloHitList
                 continue;
 
             // Calculate actual 3D distance to confirm it's within threshold
-            const float distSquared = (pCaloHitI->GetPositionVector() - pCaloHitJ->GetPositionVector()).GetMagnitudeSquared();
+            const float distSquared((pCaloHitI->GetPositionVector() - pCaloHitJ->GetPositionVector()).GetMagnitudeSquared());
 
             if (distSquared < m_clusteringWindowSquared)
             {

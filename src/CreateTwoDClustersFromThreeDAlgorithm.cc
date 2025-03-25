@@ -22,11 +22,13 @@ CreateTwoDClustersFromThreeDAlgorithm::CreateTwoDClustersFromThreeDAlgorithm()
 }
 
 //------------------------------------------------------------------------------------------------------------------------------------------
+
 inline std::pair<int, int> QuanitizePosition(const float x, const float wirePos)
 {
     constexpr float scale{1e-5};
     return std::make_pair(static_cast<int>(x / scale), static_cast<int>(wirePos / scale));
 }
+
 //------------------------------------------------------------------------------------------------------------------------------------------
 
 StatusCode CreateTwoDClustersFromThreeDAlgorithm::Run()
