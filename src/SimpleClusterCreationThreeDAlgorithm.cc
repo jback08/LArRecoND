@@ -10,16 +10,18 @@
 
 #include "larpandoracontent/LArHelpers/LArClusterHelper.h"
 #include "larpandoracontent/LArUtility/KDTreeLinkerAlgoT.h"
-#include <unordered_map>
 
 #include "SimpleClusterCreationThreeDAlgorithm.h"
+
+#include <unordered_map>
 
 using namespace pandora;
 
 namespace lar_content
 {
 
-SimpleClusterCreationThreeDAlgorithm::SimpleClusterCreationThreeDAlgorithm() : m_clusteringWindowSquared(0.25f)
+SimpleClusterCreationThreeDAlgorithm::SimpleClusterCreationThreeDAlgorithm() :
+    m_clusteringWindowSquared(0.25f)
 {
 }
 
@@ -58,12 +60,12 @@ void SimpleClusterCreationThreeDAlgorithm::BuildAssociationMap(const CaloHitList
     kdTree.build(hitKDNode2DList, hitsBoundingRegion2D);
 
     // Create a lookup from KDNode to actual CaloHit
-    std::unordered_map<const void*, const CaloHit*> nodeToHitMap;
+    std::unordered_map<const void *, const CaloHit *> nodeToHitMap;
     for (const auto &node : hitKDNode2DList)
-        nodeToHitMap[node.data] = static_cast<const CaloHit*>(node.data);
+        nodeToHitMap[node.data] = static_cast<const CaloHit *>(node.data);
 
     // Create a hit to index map for quicker lookups
-    std::unordered_map<const CaloHit*, size_t> hitToIndexMap;
+    std::unordered_map<const CaloHit *, size_t> hitToIndexMap;
     size_t index = 0;
     for (const CaloHit *const pCaloHit : allCaloHits)
         hitToIndexMap[pCaloHit] = index++;

@@ -25,7 +25,8 @@ using namespace pandora;
 namespace lar_content
 {
 
-PfoThreeDHitAssignmentAlgorithm::PfoThreeDHitAssignmentAlgorithm() : m_inputCaloHitList3DName{""}
+PfoThreeDHitAssignmentAlgorithm::PfoThreeDHitAssignmentAlgorithm() :
+    m_inputCaloHitList3DName{""}
 {
 }
 
@@ -58,7 +59,7 @@ pandora::StatusCode PfoThreeDHitAssignmentAlgorithm::Run()
     std::map<const CaloHit *, const ParticleFlowObject *> availableHitToPfoU, availableHitToPfoV, availableHitToPfoW;
 
     using HitPositionMap = std::map<std::pair<float, float>, const CaloHit *>;
-    std::map<const ParticleFlowObject*, HitPositionMap> pfoToUHitMap, pfoToVHitMap, pfoToWHitMap;
+    std::map<const ParticleFlowObject *, HitPositionMap> pfoToUHitMap, pfoToVHitMap, pfoToWHitMap;
 
     for (unsigned int i = 0; i < m_inputPfoListNames.size(); ++i)
     {
@@ -98,7 +99,6 @@ pandora::StatusCode PfoThreeDHitAssignmentAlgorithm::Run()
                 const CartesianVector pos = pHit->GetPositionVector();
                 pfoToWHitMap[pPfo][std::make_pair(pos.GetX(), pos.GetZ())] = pHit;
             }
-
         }
     }
 

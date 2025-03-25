@@ -43,8 +43,8 @@ private:
      *  @param usedHits2D list of already used 2D hits
      *  @param hitType the type of hits in the hit list
      */
-    void GetAssociatedTwoDHit(const pandora::CaloHit *const pCaloHit3D, const SpatialHitMap &hitMap,
-        pandora::CaloHitList &associatedHits, HitUsedMap &usedHits2D, const pandora::HitType &hitType) const;
+    void GetAssociatedTwoDHit(const pandora::CaloHit *const pCaloHit3D, const SpatialHitMap &hitMap, pandora::CaloHitList &associatedHits,
+        HitUsedMap &usedHits2D, const pandora::HitType &hitType) const;
 
     pandora::StatusCode ReadSettings(const pandora::TiXmlHandle xmlHandle);
 
