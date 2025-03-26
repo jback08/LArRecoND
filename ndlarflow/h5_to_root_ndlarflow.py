@@ -16,12 +16,11 @@ import sys
 
 # Main function with command line settable params
 def printUsage():
-    print('python h5_to_root_ndlarflow_ndmc_more_refactor.py FileList IsData IsFinalHits Is2x2 OutName')
+    print('python h5_to_root_ndlarflow_ndmc_more_refactor.py FileList IsData IsFinalHits OutName')
     print('-- Parameters')
     print('FileList    [REQUIRED]:                           comma separated set of files to convert - note it will be one output')
     print('IsData      [OPTIONAL, DEFAULT = 0, is MC]:       1 = Data, otherwise = MC')
     print('IsFinalHits [OPTIONAL, DEFAULT = 0, prompt hits]: 1 = use "final" hits, otherwise = "prompt"')
-    print('Is2x2       [OPTIONAL, DEFAULT = 0, is NDLAr]:    1 = use 2x2 file customizations, 0 = use NDLAr file customizations')
     print('OutName     [OPTIONAL, DEFAULT = input[0]+stuff]: string for an output file name if you want to override. Note that default writes to current directory.')
     print('')
 
@@ -29,7 +28,6 @@ def main(argv=None):
     fileNames=[]
     useData=False
     useFinalHits=False
-    use2x2=False
     overrideOutname=1
     outname=''
 
@@ -61,9 +59,6 @@ def main(argv=None):
             if int(sys.argv[3])==1:
                 useFinalHits=True
         if len(sys.argv)>4 and sys.argv[4]!=None:
-            if int(sys.argv[4])==1:
-                use2x2=True
-        if len(sys.argv)>5 and sys.argv[5]!=None:
             outname=str(sys.argv[4])
             overrideOutname=0
 
@@ -167,14 +162,9 @@ def main(argv=None):
                 vertex_indicesArray = np.where(flow_out["/mc_truth/interactions/data"]["event_id"] == spillID)[0]
                 vtx = flow_out["/mc_truth/interactions/data"][vertex_indicesArray]
                 nu_vtx_id = (vtx['vertex_id']).astype('int64')
-                if use2x2==True:
-                    nu_vtx_x = (vtx['vertex'][:,0]).astype('float32')
-                    nu_vtx_y = (vtx['vertex'][:,1]).astype('float32')
-                    nu_vtx_z = (vtx['vertex'][:,2]).astype('float32')
-                else:
-                    nu_vtx_x = (vtx['x_vert']).astype('float32')
-                    nu_vtx_y = (vtx['y_vert']).astype('float32')
-                    nu_vtx_z = (vtx['z_vert']).astype('float32')
+                nu_vtx_x = (vtx['x_vert']).astype('float32')
+                nu_vtx_y = (vtx['y_vert']).astype('float32')
+                nu_vtx_z = (vtx['z_vert']).astype('float32')
                 nu_vtx_E = (vtx['Enu']*MeV2GeV).astype('float32')
                 nu_pdg = (vtx['nu_pdg']).astype('int32')
                 nu_px = (vtx['nu_4mom'][:,0]*MeV2GeV).astype('float32')
