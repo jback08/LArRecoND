@@ -154,9 +154,6 @@ def main(argv=None):
                 trajEndX = (traj['xyz_end'][:,0]).astype('float32')
                 trajEndY = (traj['xyz_end'][:,1]).astype('float32')
                 trajEndZ = (traj['xyz_end'][:,2]).astype('float32')
-                #trajLength = (traj['dist_travel']).astype('float32')
-                #trajTStart = (traj['t_start']).astype('double')
-                #trajTEnd = (traj['t_end']).astype('double')
                 trajID = (traj['file_traj_id']).astype('int64')
                 trajIDLocal = (traj['traj_id']).astype('int64')
                 trajPDG = (traj['pdg_id']).astype('int32')
@@ -179,7 +176,6 @@ def main(argv=None):
                     nu_vtx_y = (vtx['y_vert']).astype('float32')
                     nu_vtx_z = (vtx['z_vert']).astype('float32')
                 nu_vtx_E = (vtx['Enu']*MeV2GeV).astype('float32')
-                #nu_spill_t = (vtx['t_event']).astype('float64')
                 nu_pdg = (vtx['nu_pdg']).astype('int32')
                 nu_px = (vtx['nu_4mom'][:,0]*MeV2GeV).astype('float32')
                 nu_py = (vtx['nu_4mom'][:,1]*MeV2GeV).astype('float32')
@@ -207,8 +203,6 @@ def main(argv=None):
             event_dict = { 'run':runID, 'subrun':subrunID, 'event':eventID, 'unix_ts':event_unix_ts, 'event_start_t':event_start_t, 'event_end_t':event_end_t }
 
             if useData==False:
-                # NB: removed 'mcp_length':trajLength, for now, appears to not work for 2x2, removing the particle tstart/tend and nuspillt for now too
-                #     'mcp_tstart':trajTStart, 'mcp_tend':trajTEnd, 'nuspillt':nu_spill_t
                 other_dict = {  'x':hits_x, 'y':hits_y, 'z':hits_z, 'ts':hits_ts, 'charge':hits_Q, 'E':hits_E, 'matches':matches,\
                                 'mcp_energy':trajE, 'mcp_pdg':trajPDG, 'mcp_nuid':trajVertexID, 'mcp_vertex_id':trajVertexID,\
                                 'mcp_idLocal':trajIDLocal, 'mcp_id':trajID, 'mcp_px':trajPx, 'mcp_py':trajPy, 'mcp_pz':trajPz,\
