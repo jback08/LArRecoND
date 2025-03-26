@@ -221,10 +221,10 @@ def main(argv=None):
                         event_dict[key] = awk.values_astype(awk.Array([other_dict[key][first:last]]),other_dict[key].dtype)
                     if isWritten==False:
                         fout = ur.recreate(outname)
-                        fout['events'] = event_dict
+                        fout['subevents'] = event_dict
                         isWritten=True
                     else:
-                        fout['events'].extend(event_dict)
+                        fout['subevents'].extend(event_dict)
             else:
                 nSubEvents = int(max_entries/MaxArrayDepth)+1
                 for idxSubEvent in range(nSubEvents):
@@ -235,10 +235,10 @@ def main(argv=None):
                         event_dict[key] = awk.values_astype(awk.Array([other_dict[key][first:last]]),other_dict[key].dtype)
                     if isWritten==False:
                         fout = ur.recreate(outname)
-                        fout['events'] = event_dict
+                        fout['subevents'] = event_dict
                         isWritten=True
                     else:
-                        fout['events'].extend(event_dict)
+                        fout['subevents'].extend(event_dict)
                 del packetFrac
                 del particleID
                 del particleIDLocal

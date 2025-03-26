@@ -41,7 +41,7 @@ void rootToRootConversion(
     Float_t in_charge[MaxDepthArray];
     Float_t in_E[MaxDepthArray];
 
-    // Hit truth (currently cappped at 10 per hit)
+    // Hit truth
     int     nmatchesinsubevent(0);
     Float_t packetFrac[MaxDepthArrayMC];
     Long_t  particleID[MaxDepthArrayMC];
@@ -51,7 +51,7 @@ void rootToRootConversion(
     Long_t  segmentID[MaxDepthArrayMC];
 
     // MCP
-    // TODO: we should probably save the max number of MCParticles and neutrinos as well, for now we'll assume 10*NMaxHits which is hopefully okay but not guaranteed
+    // We have a maximum depth set by the h5_to_root_ndlarflow.py script matching the 10000 set above. For data mode, this will not be used.
     int     nmcpinsubevent(0);
     Float_t in_mcp_energy[MaxDepthArrayMC];
     Float_t in_mcp_px[MaxDepthArrayMC];
@@ -69,7 +69,7 @@ void rootToRootConversion(
     Long_t  in_mcp_idLocal[MaxDepthArrayMC];
     Long_t  in_mcp_id[MaxDepthArrayMC];
     Long_t  in_mcp_mother[MaxDepthArrayMC];
-    // Neutrinos: see caveat above, but here we'll have a hard cap at 500
+    // Neutrinos: see caveat above, but here we'll have a hard cap at 500 -- TODO: can we tolerate having this officially set to the maximum subevent size of 10000 as well?
     int     nnuinsubevent(0);
     Long_t  in_nuID[MaxDepthArrayNu];
     Int_t   in_nuPDG[MaxDepthArrayNu];
@@ -83,7 +83,7 @@ void rootToRootConversion(
     Float_t in_nuvtxy[MaxDepthArrayNu];
     Float_t in_nuvtxz[MaxDepthArrayNu];
 
-    TTree* tr = (TTree*)f->Get("events");
+    TTree* tr = (TTree*)f->Get("subevents");
     tr->SetBranchAddress("run",&in_run);
     tr->SetBranchAddress("subrun",&in_subrun);
     tr->SetBranchAddress("event",&in_event);
@@ -128,7 +128,7 @@ void rootToRootConversion(
         tr->SetBranchAddress("mcp_mother", &in_mcp_mother);
         tr->SetBranchAddress("nmcp_energy",&nmcpinsubevent);
 
-        tr->SetBranchAddress("nuID", &in_nuID); // both nuID and vertex_id appear to use this value...
+        tr->SetBranchAddress("nuID", &in_nuID); // both nuID and vertex_id appear to use this value
         tr->SetBranchAddress("nuPDG", &in_nuPDG);
         tr->SetBranchAddress("mode", &in_mode);
         tr->SetBranchAddress("ccnc", &in_ccnc);
