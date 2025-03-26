@@ -35,8 +35,8 @@ def main(argv=None):
 
     MeV2GeV=0.001
     trueXOffset=0 # Offsets if geometry changes
-    trueYOffset=0#42+268
-    trueZOffset=0#-1300
+    trueYOffset=0 #42+268
+    trueZOffset=0 #-1300
 
     if len(sys.argv)==1:
         print('---------------------------------------------------------------')
