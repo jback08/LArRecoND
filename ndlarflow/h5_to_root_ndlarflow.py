@@ -94,7 +94,7 @@ def main(argv=None):
                 continue
 
             # Start with the non-spill info, this is all ~like the current form
-            # note, not sure why this is repeated in the main python code...
+            #   but not repeating
             runID = np.array( [0], dtype='int32' )
             subrunID = np.array( [0], dtype='int32' )
             eventID = np.array( [event['id']], dtype='int32' )
@@ -112,7 +112,7 @@ def main(argv=None):
             hits_ts = ( np.ma.getdata(event_calib_prompt_hits["ts_pps"][0]) ).astype('float32')
             hits_ids = np.ma.getdata(event_calib_prompt_hits["id"][0])
 
-            # "uncalib" -- same for now, not even used in LArPandora... why save? Make it optional to use the prompt or final hits and leave at that?
+            # "uncalib" -- this alternative is not currently used in LArPandora that I can tell, so no need to save. Making optional to use the prompt or final hits to be saved.
             #######################################
 
             if len(hits_ids)<2:
