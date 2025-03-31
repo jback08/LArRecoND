@@ -12,7 +12,7 @@ project(LArRecoND)
 # project version
 set(${PROJECT_NAME}_VERSION_MAJOR 01)
 set(${PROJECT_NAME}_VERSION_MINOR 01)
-set(${PROJECT_NAME}_VERSION_PATCH 04)
+set(${PROJECT_NAME}_VERSION_PATCH 06)
 set(${PROJECT_NAME}_VERSION "${${PROJECT_NAME}_VERSION_MAJOR}.${${PROJECT_NAME}_VERSION_MINOR}.${${PROJECT_NAME}_VERSION_PATCH}")
 
 #-------------------------------------------------------------------------------------------------------------------------------------------
@@ -25,7 +25,7 @@ include_directories(include)
 find_package(PandoraSDK 03.04.01 REQUIRED)
 
 set(LAR_CONTENT_LIBRARY_NAME "LArContent")
-set(LAR_CONTENT_LIBRARY_VERSION "03.22.08")
+set(LAR_CONTENT_LIBRARY_VERSION "04.14.00")
 find_package(${LAR_CONTENT_LIBRARY_NAME} ${LAR_CONTENT_LIBRARY_VERSION} REQUIRED)
 
 if(PANDORA_LIBTORCH)
