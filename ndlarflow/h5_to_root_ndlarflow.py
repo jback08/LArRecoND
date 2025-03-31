@@ -10,6 +10,7 @@ import os
 import sys
 
 # Refactored version of h5 to ROOT conversion, Bruce Howard - 2025
+# initial scripts are now saved in e.g. _minirun6_2.py and _minirun6_3.py versions e.g. and thanks to Richie Diurba and any others who made these scripts
 
 # NOTE for more on uproot TTree writing see the below or the uproot documentation
 # see https://stackoverflow.com/questions/72187937/writing-trees-number-of-baskets-and-compression-uproot
