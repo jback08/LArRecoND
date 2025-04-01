@@ -17,12 +17,14 @@ import sys
 
 # Main function with command line settable params
 def printUsage():
-    print('python h5_to_root_ndlarflow_ndmc_more_refactor.py FileList IsData IsFinalHits OutName')
+    print('python h5_to_root_ndlarflow.py FileList IsData IsFinalHits OutName')
     print('-- Parameters')
-    print('FileList    [REQUIRED]:                           comma separated set of files to convert - note it will be one output')
-    print('IsData      [OPTIONAL, DEFAULT = 0, is MC]:       1 = Data, otherwise = MC')
-    print('IsFinalHits [OPTIONAL, DEFAULT = 0, prompt hits]: 1 = use "final" hits, otherwise = "prompt"')
-    print('OutName     [OPTIONAL, DEFAULT = input[0]+stuff]: string for an output file name if you want to override. Note that default writes to current directory.')
+    print('FileList    [REQUIRED]:                                         comma separated set of files to convert - note it will be one output')
+    print('IsData      [OPTIONAL, DEFAULT = 0, is MC]:                     1 = Data, otherwise = MC')
+    print('IsFinalHits [OPTIONAL, DEFAULT = 0, prompt hits]:               1 = use "final" hits, otherwise = "prompt"')
+    print('OutName     [OPTIONAL, DEFAULT = input[0]+"_hits_uproot.root"]: string for an output file name if you want to override. Note that default writes to current directory.')
+    print('')
+    print('NOTE: The output of this file should then be processed with the rootToRootConversion macro to get the format expected by LArRecoND.')
     print('')
 
 def main(argv=None):
@@ -72,7 +74,7 @@ def main(argv=None):
         promptKey='final'
 
     if overrideOutname==1:
-        outname = fileNames[0].split('/')[-1]+'_hits.root'
+        outname = fileNames[0].split('/')[-1]+'_hits_uproot.root'
 
     for fileIdx in range(len(fileNames)):
         print('Processing file',fileIdx,'of',len(fileNames))
