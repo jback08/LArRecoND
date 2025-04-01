@@ -262,7 +262,7 @@ void rootToRootConversion(
     std::vector<float> all_hit_packetFrac;
 
     for (unsigned int idx=0; idx<=NEvents; ++idx) {
-        std::cout << in_run << ":" << in_subrun << ":" << in_event << ":" << in_subevent << std::endl;
+        if ( idx%100==0 ) std::cout << in_run << ":" << in_subrun << ":" << in_event << ":" << in_subevent << std::endl;
         if (idx!=NEvents){
             tr->GetEntry(idx);
         }
