@@ -23,10 +23,13 @@ CreateTwoDClustersFromThreeDAlgorithm::CreateTwoDClustersFromThreeDAlgorithm()
 
 //------------------------------------------------------------------------------------------------------------------------------------------
 
-inline std::pair<int, int> QuanitizePosition(const float x, const float wirePos)
+inline std::pair<int, int> QuantizePosition(const float x, const float wirePos)
 {
-    constexpr float scale{1e-5};
-    return std::make_pair(static_cast<int>(x / scale), static_cast<int>(wirePos / scale));
+    // INFO: Quantize the position, to avoid floating point precision issues.
+    //       Scale value was chosen after testing, and values of 1e5 and above
+    //       were found to be sufficient.
+    constexpr float scale{1e5};
+    return std::make_pair(static_cast<int>(x * scale), static_cast<int>(wirePos * scale));
 }
 
 //------------------------------------------------------------------------------------------------------------------------------------------
@@ -65,7 +68,7 @@ StatusCode CreateTwoDClustersFromThreeDAlgorithm::Run()
             continue;
 
         const CartesianVector pos = pCaloHit->GetPositionVector();
-        spatialHitMapU[QuanitizePosition(pos.GetX(), pos.GetZ())] = pCaloHit;
+        spatialHitMapU[QuantizePosition(pos.GetX(), pos.GetZ())] = pCaloHit;
     }
 
     for (const CaloHit *const pCaloHit : *pCaloHitListV)
@@ -74,7 +77,7 @@ StatusCode CreateTwoDClustersFromThreeDAlgorithm::Run()
             continue;
 
         const CartesianVector pos = pCaloHit->GetPositionVector();
-        spatialHitMapV[QuanitizePosition(pos.GetX(), pos.GetZ())] = pCaloHit;
+        spatialHitMapV[QuantizePosition(pos.GetX(), pos.GetZ())] = pCaloHit;
     }
 
     for (const CaloHit *const pCaloHit : *pCaloHitListW)
@@ -83,7 +86,7 @@ StatusCode CreateTwoDClustersFromThreeDAlgorithm::Run()
             continue;
 
         const CartesianVector pos = pCaloHit->GetPositionVector();
-        spatialHitMapW[QuanitizePosition(pos.GetX(), pos.GetZ())] = pCaloHit;
+        spatialHitMapW[QuantizePosition(pos.GetX(), pos.GetZ())] = pCaloHit;
     }
 
     for (const Cluster *pCluster : *pClusterList3D)
@@ -176,7 +179,7 @@ void CreateTwoDClustersFromThreeDAlgorithm::GetAssociatedTwoDHit(const CaloHit *
         wirePos = PandoraContentApi::GetPlugins(*this)->GetLArTransformationPlugin()->YZtoW(posThreeD.GetY(), posThreeD.GetZ());
 
     // Look up the match in the spatial map
-    const auto it = hitMap.find(QuanitizePosition(posThreeD.GetX(), wirePos));
+    const auto it = hitMap.find(QuantizePosition(posThreeD.GetX(), wirePos));
 
     if (it == hitMap.end())
         return;
