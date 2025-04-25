@@ -90,7 +90,7 @@ def main(argv=None):
             if ievt%10==0:
                 print('Currently on',ievt,'of',eventsToRun)
             event = events[ievt]
-            event_calib_prompt_hits=flow_out["charge/events/","charge/calib_"+promptKey+"_hits", ievt]
+            event_calib_prompt_hits=flow_out["charge/events/","charge/calib_"+promptKey+"_hits", events[ievt]]
 
             if len(event_calib_prompt_hits[0])==0:
                 print('This event seems empty in the hits array, skipping')
@@ -106,7 +106,7 @@ def main(argv=None):
             event_end_t = np.array( [event['ts_end']], dtype='float' )
             event_unix_ts = np.array( [event['unix_ts']], dtype='int32' )
 
-            triggers = flow_out["charge/events","charge/ext_trigs",ievt]
+            triggers = flow_out["charge/events","charge/ext_trigs",events[ievt]]
             
             triggerArray=triggers["iogroup"]
             
