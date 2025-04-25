@@ -90,7 +90,7 @@ def main(argv=None):
             if ievt%10==0:
                 print('Currently on',ievt,'of',eventsToRun)
             event = events[ievt]
-            event_calib_prompt_hits=flow_out["charge/events/","charge/calib_"+promptKey+"_hits", events["id"][ievt]]
+            event_calib_prompt_hits=flow_out["charge/events/","charge/calib_"+promptKey+"_hits", ievt]
 
             if len(event_calib_prompt_hits[0])==0:
                 print('This event seems empty in the hits array, skipping')
@@ -101,9 +101,16 @@ def main(argv=None):
             runID = np.array( [0], dtype='int32' )
             subrunID = np.array( [0], dtype='int32' )
             eventID = np.array( [event['id']], dtype='int32' )
-            event_start_t = np.array( [event['ts_start']], dtype='int32' )
-            event_end_t = np.array( [event['ts_end']], dtype='int32' )
+            
+            event_start_t = np.array( [event['ts_start']], dtype='float' )
+            event_end_t = np.array( [event['ts_end']], dtype='float' )
             event_unix_ts = np.array( [event['unix_ts']], dtype='int32' )
+
+            triggers = flow_out["charge/events","charge/ext_trigs",ievt]
+            
+            triggerArray=triggers["iogroup"]
+            
+            triggerID = np.array( np.ma.getdata(triggerArray),dtype='int32')
 
             # Removing duplicate hits_id instantiation and getting rid of hits_id_raw which is unused
             #######################################
@@ -193,7 +200,7 @@ def main(argv=None):
                 nu_code = codes
 
             ## Rebuild now with all the individual types
-            event_dict = { 'run':runID, 'subrun':subrunID, 'event':eventID, 'unix_ts':event_unix_ts, 'event_start_t':event_start_t, 'event_end_t':event_end_t }
+            event_dict = { 'run':runID, 'subrun':subrunID, 'event':eventID, "triggers":triggerID, 'unix_ts':event_unix_ts, 'event_start_t':event_start_t, 'event_end_t':event_end_t }
 
             if useData==False:
                 other_dict = {  'x':hits_x, 'y':hits_y, 'z':hits_z, 'ts':hits_ts, 'charge':hits_Q, 'E':hits_E, 'matches':matches,\
