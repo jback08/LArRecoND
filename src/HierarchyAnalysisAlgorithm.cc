@@ -46,6 +46,7 @@ HierarchyAnalysisAlgorithm::HierarchyAnalysisAlgorithm() :
     m_eventTree{nullptr},
     m_caloHitListName{"CaloHitList2D"},
     m_pfoListName{"RecreatedPfos"},
+    m_minTrackScore{0.5f},
     m_analysisFileName{"LArRecoND.root"},
     m_analysisTreeName{"LArRecoND"},
     m_foldToPrimaries{false},
@@ -284,10 +285,7 @@ void HierarchyAnalysisAlgorithm::EventAnalysisOutput(const LArHierarchyHelper::M
                 nVHitsVect.emplace_back(nVHits);
                 nWHitsVect.emplace_back(nWHits);
 
-                // Assume all PFOs are tracks for now
-                const int isShower{0};
-                isShowerVect.emplace_back(isShower);
-                // but still save the track score, getting the appropriate metadata
+                // Save the track score, getting the appropriate metadata
                 // see e.g. https://github.com/PandoraPFA/larpandora/blob/develop/larpandora/LArPandoraInterface/LArPandoraOutput.cxx#L325 for similar
                 const auto& properties = pPfo->GetPropertiesMap();
                 float trackScore = -1.;
@@ -296,6 +294,10 @@ void HierarchyAnalysisAlgorithm::EventAnalysisOutput(const LArHierarchyHelper::M
                     trackScore = iterTrackScore->second;
                 }
                 trackScoreVect.emplace_back( trackScore );
+
+		// Define isShower based on track score
+		const int isShower = (trackScore > m_minTrackScore) ? 0 : 1;
+		isShowerVect.emplace_back(isShower);
 
                 // Set reco PDG hypothesis, e.g track = muon, shower = electron.
                 // Since all PFOs are tracks for now, this will always be muon
@@ -582,6 +584,8 @@ StatusCode HierarchyAnalysisAlgorithm::ReadSettings(const TiXmlHandle xmlHandle)
 
     PANDORA_RETURN_RESULT_IF_AND_IF(STATUS_CODE_SUCCESS, STATUS_CODE_NOT_FOUND, !=, XmlHelper::ReadValue(xmlHandle, "CaloHitListName", m_caloHitListName));
     PANDORA_RETURN_RESULT_IF_AND_IF(STATUS_CODE_SUCCESS, STATUS_CODE_NOT_FOUND, !=, XmlHelper::ReadValue(xmlHandle, "PfoListName", m_pfoListName));
+
+    PANDORA_RETURN_RESULT_IF_AND_IF(STATUS_CODE_SUCCESS, STATUS_CODE_NOT_FOUND, !=, XmlHelper::ReadValue(xmlHandle, "MinTrackScore", m_minTrackScore));
 
     PANDORA_RETURN_RESULT_IF_AND_IF(
         STATUS_CODE_SUCCESS, STATUS_CODE_NOT_FOUND, !=, XmlHelper::ReadValue(xmlHandle, "AnalysisFileName", m_analysisFileName));
