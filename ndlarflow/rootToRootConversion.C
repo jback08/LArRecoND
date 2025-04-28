@@ -29,7 +29,7 @@ void rootToRootConversion(
     const int MaxDepthArrayNu = isMC ? 500 : 1;
 
     // Get the data products FROM the tree
-    int in_run, in_subrun, in_event, in_subevent, in_event_start_t, in_event_end_t, in_unix_ts;
+    int in_run, in_subrun, in_event, in_subevent, in_event_start_t, in_event_end_t, in_unix_ts, in_triggers;
 
     // hits
     int Nhits;
@@ -87,6 +87,7 @@ void rootToRootConversion(
     tr->SetBranchAddress("run",&in_run);
     tr->SetBranchAddress("subrun",&in_subrun);
     tr->SetBranchAddress("event",&in_event);
+    tr->SetBranchAddress("triggers",&in_triggers);
     tr->SetBranchAddress("unix_ts",&in_unix_ts);
     tr->SetBranchAddress("event_start_t",&in_event_start_t);
     tr->SetBranchAddress("event_end_t",&in_event_end_t);
@@ -150,14 +151,14 @@ void rootToRootConversion(
 
     // OUTPUT TREE
     int run, subrun, event, event_start_t, event_end_t, unix_ts;
-
+    int triggers;
     std::vector<float> x;
     std::vector<float> y;
     std::vector<float> z;
     std::vector<float> ts;
     std::vector<float> E;
     std::vector<float> charge;
-
+  
     // segmentIndex, particleIndex unfilled!
     std::vector< std::vector<int> >   hit_pdg;
     std::vector< std::vector<long> >  hit_segmentID;
@@ -204,6 +205,7 @@ void rootToRootConversion(
     outgoingTree->Branch("event", &event);
     outgoingTree->Branch("event_start_t", &event_start_t);
     outgoingTree->Branch("event_end_t", &event_end_t);
+    outgoingTree->Branch("triggers",&triggers);
     outgoingTree->Branch("unix_ts", &unix_ts);
     outgoingTree->Branch("x", &x);
     outgoingTree->Branch("y", &y);
@@ -251,7 +253,7 @@ void rootToRootConversion(
     int thisRun=0;
     int thisSubRun=0;
     int thisEvent=0;
-
+    int thisTrigger=-999;
     unsigned long sum_matches=0;
     std::vector<short> all_matches;
     std::vector<int>   all_hit_pdg;
@@ -270,7 +272,8 @@ void rootToRootConversion(
             thisRun = in_run;
             thisSubRun = in_subrun;
             thisEvent = in_event;
-        }
+	    
+	}
         if ( idx > 0 && ( (in_run!=thisRun || in_subrun!=thisSubRun || in_event!=thisEvent) || idx==NEvents ) ) {
             if ( isMC ) {
                 // Something has changed... finish with the matches, fill the tree, and reset
@@ -318,7 +321,8 @@ void rootToRootConversion(
             // Fill
             outgoingTree->Fill();
             // Clear
-            x.clear();
+            triggers=-999;
+	    x.clear();
             y.clear();
             z.clear();
             ts.clear();
@@ -382,7 +386,8 @@ void rootToRootConversion(
         event_start_t = in_event_start_t;
         event_end_t = in_event_end_t;
         unix_ts = in_unix_ts;
-        
+        triggers = in_triggers;
+	
         // fill up the vectors for as much stuff as we can in this subevent:
         for ( unsigned int idxHit=0; idxHit<(unsigned int)Nhits; ++idxHit ) {
             x.push_back(in_x[idxHit]);
