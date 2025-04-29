@@ -29,6 +29,7 @@ HierarchyAnalysisAlgorithm::HierarchyAnalysisAlgorithm() :
     m_unixTime{0},
     m_startTime{0},
     m_endTime{0},
+    m_triggers{0},
     m_mcIDs{nullptr},
     m_mcLocalIDs{nullptr},
     m_eventFileName{""},
@@ -39,6 +40,7 @@ HierarchyAnalysisAlgorithm::HierarchyAnalysisAlgorithm() :
     m_unixTimeLeafName{"unix_ts"},
     m_startTimeLeafName{"event_start_t"},
     m_endTimeLeafName{"event_end_t"},
+    m_triggersLeafName{"triggers"},
     m_mcIdLeafName{"mcp_id"},
     m_mcLocalIdLeafName{"mcp_idLocal"},
     m_eventsToSkip{0},
@@ -137,7 +139,7 @@ void HierarchyAnalysisAlgorithm::SetEventRunMCIdInfo()
 
     if (m_eventTree)
     {
-        // Sets m_event, m_run, m_subRun, m_unixTime, m_startTime & m_endTime
+        // Sets m_event, m_run, m_subRun, m_unixTime, m_startTime, m_endTime & m_triggers
         const int iEntry = m_count + m_eventsToSkip;
         m_eventTree->GetEntry(iEntry);
 
@@ -296,7 +298,7 @@ void HierarchyAnalysisAlgorithm::EventAnalysisOutput(const LArHierarchyHelper::M
                 trackScoreVect.emplace_back( trackScore );
 
 		// Define isShower based on track score
-		const int isShower = (trackScore > m_minTrackScore) ? 0 : 1;
+		const int isShower = (trackScore >= m_minTrackScore) ? 0 : 1;
 		isShowerVect.emplace_back(isShower);
 
                 // Set reco PDG hypothesis, e.g track = muon, shower = electron.
@@ -391,6 +393,7 @@ void HierarchyAnalysisAlgorithm::EventAnalysisOutput(const LArHierarchyHelper::M
     PANDORA_MONITORING_API(SetTreeVariable(this->GetPandora(), m_analysisTreeName.c_str(), "unixTime", m_unixTime));
     PANDORA_MONITORING_API(SetTreeVariable(this->GetPandora(), m_analysisTreeName.c_str(), "startTime", m_startTime));
     PANDORA_MONITORING_API(SetTreeVariable(this->GetPandora(), m_analysisTreeName.c_str(), "endTime", m_endTime));
+    PANDORA_MONITORING_API(SetTreeVariable(this->GetPandora(), m_analysisTreeName.c_str(), "triggers", m_triggers));
     PANDORA_MONITORING_API(SetTreeVariable(this->GetPandora(), m_analysisTreeName.c_str(), "sliceId", &sliceIdVect));
     PANDORA_MONITORING_API(SetTreeVariable(this->GetPandora(), m_analysisTreeName.c_str(), "nuVtxX", &nuVtxXVect));
     PANDORA_MONITORING_API(SetTreeVariable(this->GetPandora(), m_analysisTreeName.c_str(), "nuVtxY", &nuVtxYVect));
@@ -544,6 +547,8 @@ StatusCode HierarchyAnalysisAlgorithm::ReadSettings(const TiXmlHandle xmlHandle)
     PANDORA_RETURN_RESULT_IF_AND_IF(
         STATUS_CODE_SUCCESS, STATUS_CODE_NOT_FOUND, !=, XmlHelper::ReadValue(xmlHandle, "StartTimeLeafName", m_startTimeLeafName));
     PANDORA_RETURN_RESULT_IF_AND_IF(STATUS_CODE_SUCCESS, STATUS_CODE_NOT_FOUND, !=, XmlHelper::ReadValue(xmlHandle, "EndTimeLeafName", m_endTimeLeafName));
+    PANDORA_RETURN_RESULT_IF_AND_IF(STATUS_CODE_SUCCESS, STATUS_CODE_NOT_FOUND, !=, XmlHelper::ReadValue(xmlHandle, "TriggersLeafName", m_triggersLeafName));
+
     PANDORA_RETURN_RESULT_IF_AND_IF(STATUS_CODE_SUCCESS, STATUS_CODE_NOT_FOUND, !=, XmlHelper::ReadValue(xmlHandle, "MCIdLeafName", m_mcIdLeafName));
     PANDORA_RETURN_RESULT_IF_AND_IF(
         STATUS_CODE_SUCCESS, STATUS_CODE_NOT_FOUND, !=, XmlHelper::ReadValue(xmlHandle, "MCLocalIdLeafName", m_mcLocalIdLeafName));
@@ -568,6 +573,7 @@ StatusCode HierarchyAnalysisAlgorithm::ReadSettings(const TiXmlHandle xmlHandle)
                 m_eventTree->SetBranchStatus(m_unixTimeLeafName.c_str(), 1);
                 m_eventTree->SetBranchStatus(m_startTimeLeafName.c_str(), 1);
                 m_eventTree->SetBranchStatus(m_endTimeLeafName.c_str(), 1);
+                m_eventTree->SetBranchStatus(m_triggersLeafName.c_str(), 1);
                 m_eventTree->SetBranchStatus(m_mcIdLeafName.c_str(), 1);
                 m_eventTree->SetBranchStatus(m_mcLocalIdLeafName.c_str(), 1);
                 m_eventTree->SetBranchAddress(m_eventLeafName.c_str(), &m_event);
@@ -576,6 +582,7 @@ StatusCode HierarchyAnalysisAlgorithm::ReadSettings(const TiXmlHandle xmlHandle)
                 m_eventTree->SetBranchAddress(m_unixTimeLeafName.c_str(), &m_unixTime);
                 m_eventTree->SetBranchAddress(m_startTimeLeafName.c_str(), &m_startTime);
                 m_eventTree->SetBranchAddress(m_endTimeLeafName.c_str(), &m_endTime);
+                m_eventTree->SetBranchAddress(m_triggersLeafName.c_str(), &m_triggers);
                 m_eventTree->SetBranchAddress(m_mcIdLeafName.c_str(), &m_mcIDs);
                 m_eventTree->SetBranchAddress(m_mcLocalIdLeafName.c_str(), &m_mcLocalIDs);
             }
