@@ -417,7 +417,7 @@ void ProcessSPEvents(const Parameters &parameters, const Pandora *const pPrimary
                 // Due to the merging of hits, the contributions can sometimes add up to more than 1.
                 // Normalise first
                 const float sum = std::accumulate(mcContribs.begin(), mcContribs.end(), 0.f);
-                energyFrac = mcContribs[biggestContribIndex] / sum;
+                energyFrac = (biggestContribIndex < mcContribs.size() && std::abs(sum) > 0.0) ? mcContribs[biggestContribIndex] / sum : 0.f;
                 // Make sure the energy fraction is not larger than 1
                 if (energyFrac > 1.f + std::numeric_limits<float>::epsilon())
                     energyFrac = 1.f;
