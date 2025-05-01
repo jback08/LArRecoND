@@ -96,15 +96,6 @@ def main(argv=None):
                 print('This event seems empty in the hits array, skipping')
                 continue
 
-            # Start with the non-spill info, this is all ~like the current form
-            #   but not repeating
-            runID = np.array( [0], dtype='int32' )
-            subrunID = np.array( [0], dtype='int32' )
-            eventID = np.array( [event['id']], dtype='int32' )
-            event_start_t = np.array( [event['ts_start']], dtype='int32' )
-            event_end_t = np.array( [event['ts_end']], dtype='int32' )
-            event_unix_ts = np.array( [event['unix_ts']], dtype='int32' )
-
             # Removing duplicate hits_id instantiation and getting rid of hits_id_raw which is unused
             #######################################
             hits_z = (np.ma.getdata(event_calib_prompt_hits["z"][0])+trueZOffset).astype('float32')
@@ -115,12 +106,28 @@ def main(argv=None):
             hits_ts = ( np.ma.getdata(event_calib_prompt_hits["ts_pps"][0]) ).astype('float32')
             hits_ids = np.ma.getdata(event_calib_prompt_hits["id"][0])
 
-            # "uncalib" -- this alternative is not currently used in LArPandora that I can tell, so no need to save. Making optional to use the prompt or final hits to be saved.
-            #######################################
-
             if len(hits_ids)<2:
                 print('This event has < 2 hit IDs, skipping')
                 continue
+
+            # Start with the non-spill info, this is all ~like the current form
+            #   but not repeating
+            runID = np.array( [0], dtype='int32' )
+            subrunID = np.array( [0], dtype='int32' )
+            eventID = np.array( [event['id']], dtype='int32' )
+            event_start_t = np.array( [event['ts_start']], dtype='int32' )
+            event_end_t = np.array( [event['ts_end']], dtype='int32' )
+            event_unix_ts = np.array( [event['unix_ts']], dtype='int32' )
+
+            triggers = flow_out["charge/events","charge/ext_trigs",events["id"][ievt]]
+            
+            triggerArray=triggers["iogroup"]
+            
+            triggerID = np.array( np.ma.getdata(triggerArray),dtype='int32')
+
+
+            # "uncalib" -- this alternative is not currently used in LArPandora that I can tell, so no need to save. Making optional to use the prompt or final hits to be saved.
+            #######################################
 
             if useData==False:
                 # Truth-level info for hits
@@ -193,7 +200,7 @@ def main(argv=None):
                 nu_code = codes
 
             ## Rebuild now with all the individual types
-            event_dict = { 'run':runID, 'subrun':subrunID, 'event':eventID, 'unix_ts':event_unix_ts, 'event_start_t':event_start_t, 'event_end_t':event_end_t }
+            event_dict = { 'run':runID, 'subrun':subrunID, 'event':eventID, "triggers":triggerID, 'unix_ts':event_unix_ts, 'event_start_t':event_start_t, 'event_end_t':event_end_t }
 
             if useData==False:
                 other_dict = {  'x':hits_x, 'y':hits_y, 'z':hits_z, 'ts':hits_ts, 'charge':hits_Q, 'E':hits_E, 'matches':matches,\
