@@ -29,6 +29,7 @@ HierarchyAnalysisAlgorithm::HierarchyAnalysisAlgorithm() :
     m_unixTime{0},
     m_startTime{0},
     m_endTime{0},
+    m_triggers{0},
     m_mcIDs{nullptr},
     m_mcLocalIDs{nullptr},
     m_eventFileName{""},
@@ -39,6 +40,7 @@ HierarchyAnalysisAlgorithm::HierarchyAnalysisAlgorithm() :
     m_unixTimeLeafName{"unix_ts"},
     m_startTimeLeafName{"event_start_t"},
     m_endTimeLeafName{"event_end_t"},
+    m_triggersLeafName{"triggers"},
     m_mcIdLeafName{"mcp_id"},
     m_mcLocalIdLeafName{"mcp_idLocal"},
     m_eventsToSkip{0},
@@ -137,7 +139,7 @@ void HierarchyAnalysisAlgorithm::SetEventRunMCIdInfo()
 
     if (m_eventTree)
     {
-        // Sets m_event, m_run, m_subRun, m_unixTime, m_startTime & m_endTime
+        // Sets m_event, m_run, m_subRun, m_unixTime, m_startTime, m_endTime & m_triggers
         const int iEntry = m_count + m_eventsToSkip;
         m_eventTree->GetEntry(iEntry);
 
@@ -156,9 +158,9 @@ void HierarchyAnalysisAlgorithm::EventAnalysisOutput(const LArHierarchyHelper::M
 {
     // For storing various reconstructed PFO quantities in the given event
     int sliceId{-1};
-    // Slice & hits
-    IntVector sliceIdVect, n3DHitsVect, nUHitsVect, nVHitsVect, nWHitsVect;
-    // isShower, isRecoPrimary & reco PDG hypothesis
+    // Slice & cluster IDs, and number of hits
+    IntVector sliceIdVect, clusterIdVect, n3DHitsVect, nUHitsVect, nVHitsVect, nWHitsVect;
+    // Cluster isShower, isRecoPrimary & reco PDG hypothesis, as well as the track score
     IntVector isShowerVect, isRecoPrimaryVect, recoPDGVect;
     FloatVector trackScoreVect;
     // Reco neutrino vertex
@@ -179,6 +181,13 @@ void HierarchyAnalysisAlgorithm::EventAnalysisOutput(const LArHierarchyHelper::M
     FloatVector mcNuEVect, mcNuPxVect, mcNuPyVect, mcNuPzVect;
     // Long integers for the MC IDs: vertex, unique and local trajectories
     std::vector<long> mcNuIdVect, mcIdVect, mcLocalIdVect;
+
+    // Hit info for each reconstructed PFO. Since we can't store vectors of vectors, the size of
+    // these vectors = n3DHits*nPFOs, whereas all of the above vectors have size = nPFOs.
+    // The hit vector entries follow the order PFO1[n3DHits1], PFO2[n3DHits2], PFO3[n3DHits3] etc.
+    // The sliceId & clusterId vectors keep track of where a given hit comes from
+    IntVector recoHitIdVect, recoHitSliceIdVect, recoHitClusterIdVect;
+    FloatVector recoHitXVect, recoHitYVect, recoHitZVect, recoHitEVect;
 
     // Get the list of root MCParticles for the MC truth matching
     MCParticleList rootMCParticles;
@@ -205,6 +214,9 @@ void HierarchyAnalysisAlgorithm::EventAnalysisOutput(const LArHierarchyHelper::M
         LArHierarchyHelper::RecoHierarchy::NodeVector recoNodes;
         recoHierarchy.GetFlattenedNodes(pRoot, recoNodes);
 
+        // Cluster id for the given slice
+        int clusterId{-1};
+
         // Loop over the reco nodes
         for (const LArHierarchyHelper::RecoHierarchy::Node *pRecoNode : recoNodes)
         {
@@ -226,6 +238,9 @@ void HierarchyAnalysisAlgorithm::EventAnalysisOutput(const LArHierarchyHelper::M
                 const int n3DHits(pCluster3D->GetNCaloHits());
                 if (n3DHits == 0)
                     continue;
+
+                // Increment clusterId
+                clusterId++;
 
                 // Find first and last cluster hit points
                 CartesianVector first(max, max, max), last(max, max, max);
@@ -279,6 +294,9 @@ void HierarchyAnalysisAlgorithm::EventAnalysisOutput(const LArHierarchyHelper::M
                 nuVtxYVect.emplace_back(rootRecoVtx.GetY());
                 nuVtxZVect.emplace_back(rootRecoVtx.GetZ());
 
+                // Cluster Id
+                clusterIdVect.emplace_back(clusterId);
+
                 // Number of hits in the cluster (by views)
                 n3DHitsVect.emplace_back(n3DHits);
                 nUHitsVect.emplace_back(nUHits);
@@ -287,17 +305,18 @@ void HierarchyAnalysisAlgorithm::EventAnalysisOutput(const LArHierarchyHelper::M
 
                 // Save the track score, getting the appropriate metadata
                 // see e.g. https://github.com/PandoraPFA/larpandora/blob/develop/larpandora/LArPandoraInterface/LArPandoraOutput.cxx#L325 for similar
-                const auto& properties = pPfo->GetPropertiesMap();
-                float trackScore = -1.;
+                const auto &properties = pPfo->GetPropertiesMap();
+                float trackScore{-1.f};
                 const auto iterTrackScore(properties.find("TrackScore"));
-                if ( iterTrackScore != properties.end() ) {
+                if (iterTrackScore != properties.end())
+                {
                     trackScore = iterTrackScore->second;
                 }
-                trackScoreVect.emplace_back( trackScore );
+                trackScoreVect.emplace_back(trackScore);
 
-		// Define isShower based on track score
-		const int isShower = (trackScore > m_minTrackScore) ? 0 : 1;
-		isShowerVect.emplace_back(isShower);
+                // Define isShower based on track score
+                const int isShower = (trackScore >= m_minTrackScore) ? 0 : 1;
+                isShowerVect.emplace_back(isShower);
 
                 // Set reco PDG hypothesis, e.g track = muon, shower = electron.
                 // Since all PFOs are tracks for now, this will always be muon
@@ -327,6 +346,27 @@ void HierarchyAnalysisAlgorithm::EventAnalysisOutput(const LArHierarchyHelper::M
 
                 // Cluster energy (sum over all hits)
                 energyVect.emplace_back(clusterEnergy);
+
+                // Store 3D reco hit information for this cluster/PFO. Vector sizes = nPFOs*n3DHits not nPFOs.
+                // The hit vector entries follow the order PFO1[n3DHits1], PFO2[n3DHits2], PFO3[n3DHits3] etc.
+                pandora::CaloHitList calo3DHitList;
+                LArClusterHelper::GetAllHits(pCluster3D, calo3DHitList);
+                // Sort hits using their positions
+                calo3DHitList.sort(LArClusterHelper::SortHitsByPosition);
+
+                for (const auto *pCalo3DHit : calo3DHitList)
+                {
+                    const int hitId = reinterpret_cast<intptr_t>(pCalo3DHit->GetParentAddress());
+                    const CartesianVector hitPos = pCalo3DHit->GetPositionVector();
+                    const float hitE = pCalo3DHit->GetInputEnergy();
+                    recoHitIdVect.emplace_back(hitId);
+                    recoHitSliceIdVect.emplace_back(sliceId);
+                    recoHitClusterIdVect.emplace_back(clusterId);
+                    recoHitXVect.emplace_back(hitPos.GetX());
+                    recoHitYVect.emplace_back(hitPos.GetY());
+                    recoHitZVect.emplace_back(hitPos.GetZ());
+                    recoHitEVect.emplace_back(hitE);
+                }
 
                 // Best matched MC particle
                 const MCParticle *pLeadingMC = bestMatch.m_pLeadingMC;
@@ -391,10 +431,12 @@ void HierarchyAnalysisAlgorithm::EventAnalysisOutput(const LArHierarchyHelper::M
     PANDORA_MONITORING_API(SetTreeVariable(this->GetPandora(), m_analysisTreeName.c_str(), "unixTime", m_unixTime));
     PANDORA_MONITORING_API(SetTreeVariable(this->GetPandora(), m_analysisTreeName.c_str(), "startTime", m_startTime));
     PANDORA_MONITORING_API(SetTreeVariable(this->GetPandora(), m_analysisTreeName.c_str(), "endTime", m_endTime));
+    PANDORA_MONITORING_API(SetTreeVariable(this->GetPandora(), m_analysisTreeName.c_str(), "triggers", m_triggers));
     PANDORA_MONITORING_API(SetTreeVariable(this->GetPandora(), m_analysisTreeName.c_str(), "sliceId", &sliceIdVect));
     PANDORA_MONITORING_API(SetTreeVariable(this->GetPandora(), m_analysisTreeName.c_str(), "nuVtxX", &nuVtxXVect));
     PANDORA_MONITORING_API(SetTreeVariable(this->GetPandora(), m_analysisTreeName.c_str(), "nuVtxY", &nuVtxYVect));
     PANDORA_MONITORING_API(SetTreeVariable(this->GetPandora(), m_analysisTreeName.c_str(), "nuVtxZ", &nuVtxZVect));
+    PANDORA_MONITORING_API(SetTreeVariable(this->GetPandora(), m_analysisTreeName.c_str(), "clusterId", &clusterIdVect));
     PANDORA_MONITORING_API(SetTreeVariable(this->GetPandora(), m_analysisTreeName.c_str(), "n3DHits", &n3DHitsVect));
     PANDORA_MONITORING_API(SetTreeVariable(this->GetPandora(), m_analysisTreeName.c_str(), "nUHits", &nUHitsVect));
     PANDORA_MONITORING_API(SetTreeVariable(this->GetPandora(), m_analysisTreeName.c_str(), "nVHits", &nVHitsVect));
@@ -419,6 +461,13 @@ void HierarchyAnalysisAlgorithm::EventAnalysisOutput(const LArHierarchyHelper::M
     PANDORA_MONITORING_API(SetTreeVariable(this->GetPandora(), m_analysisTreeName.c_str(), "length2", &secondaryLVect));
     PANDORA_MONITORING_API(SetTreeVariable(this->GetPandora(), m_analysisTreeName.c_str(), "length3", &tertiaryLVect));
     PANDORA_MONITORING_API(SetTreeVariable(this->GetPandora(), m_analysisTreeName.c_str(), "energy", &energyVect));
+    PANDORA_MONITORING_API(SetTreeVariable(this->GetPandora(), m_analysisTreeName.c_str(), "recoHitId", &recoHitIdVect));
+    PANDORA_MONITORING_API(SetTreeVariable(this->GetPandora(), m_analysisTreeName.c_str(), "recoHitSliceId", &recoHitSliceIdVect));
+    PANDORA_MONITORING_API(SetTreeVariable(this->GetPandora(), m_analysisTreeName.c_str(), "recoHitClusterId", &recoHitClusterIdVect));
+    PANDORA_MONITORING_API(SetTreeVariable(this->GetPandora(), m_analysisTreeName.c_str(), "recoHitX", &recoHitXVect));
+    PANDORA_MONITORING_API(SetTreeVariable(this->GetPandora(), m_analysisTreeName.c_str(), "recoHitY", &recoHitYVect));
+    PANDORA_MONITORING_API(SetTreeVariable(this->GetPandora(), m_analysisTreeName.c_str(), "recoHitZ", &recoHitZVect));
+    PANDORA_MONITORING_API(SetTreeVariable(this->GetPandora(), m_analysisTreeName.c_str(), "recoHitE", &recoHitEVect));
     PANDORA_MONITORING_API(SetTreeVariable(this->GetPandora(), m_analysisTreeName.c_str(), "gotMatch", &matchVect));
     PANDORA_MONITORING_API(SetTreeVariable(this->GetPandora(), m_analysisTreeName.c_str(), "mcPDG", &mcPDGVect));
     PANDORA_MONITORING_API(SetTreeVariable(this->GetPandora(), m_analysisTreeName.c_str(), "mcId", &mcIdVect));
@@ -524,7 +573,11 @@ const HierarchyAnalysisAlgorithm::RecoMCMatch HierarchyAnalysisAlgorithm::GetRec
 
 HierarchyAnalysisAlgorithm::RecoMCMatch::RecoMCMatch(const pandora::MCParticle *pNuRoot, const pandora::MCParticle *pLeadingMC,
     const int nSharedHits, const float completeness, const float purity) :
-    m_pNuRoot(pNuRoot), m_pLeadingMC(pLeadingMC), m_nSharedHits(nSharedHits), m_completeness(completeness), m_purity(purity)
+    m_pNuRoot(pNuRoot),
+    m_pLeadingMC(pLeadingMC),
+    m_nSharedHits(nSharedHits),
+    m_completeness(completeness),
+    m_purity(purity)
 {
 }
 
@@ -544,6 +597,9 @@ StatusCode HierarchyAnalysisAlgorithm::ReadSettings(const TiXmlHandle xmlHandle)
     PANDORA_RETURN_RESULT_IF_AND_IF(
         STATUS_CODE_SUCCESS, STATUS_CODE_NOT_FOUND, !=, XmlHelper::ReadValue(xmlHandle, "StartTimeLeafName", m_startTimeLeafName));
     PANDORA_RETURN_RESULT_IF_AND_IF(STATUS_CODE_SUCCESS, STATUS_CODE_NOT_FOUND, !=, XmlHelper::ReadValue(xmlHandle, "EndTimeLeafName", m_endTimeLeafName));
+    PANDORA_RETURN_RESULT_IF_AND_IF(
+        STATUS_CODE_SUCCESS, STATUS_CODE_NOT_FOUND, !=, XmlHelper::ReadValue(xmlHandle, "TriggersLeafName", m_triggersLeafName));
+
     PANDORA_RETURN_RESULT_IF_AND_IF(STATUS_CODE_SUCCESS, STATUS_CODE_NOT_FOUND, !=, XmlHelper::ReadValue(xmlHandle, "MCIdLeafName", m_mcIdLeafName));
     PANDORA_RETURN_RESULT_IF_AND_IF(
         STATUS_CODE_SUCCESS, STATUS_CODE_NOT_FOUND, !=, XmlHelper::ReadValue(xmlHandle, "MCLocalIdLeafName", m_mcLocalIdLeafName));
@@ -568,6 +624,7 @@ StatusCode HierarchyAnalysisAlgorithm::ReadSettings(const TiXmlHandle xmlHandle)
                 m_eventTree->SetBranchStatus(m_unixTimeLeafName.c_str(), 1);
                 m_eventTree->SetBranchStatus(m_startTimeLeafName.c_str(), 1);
                 m_eventTree->SetBranchStatus(m_endTimeLeafName.c_str(), 1);
+                m_eventTree->SetBranchStatus(m_triggersLeafName.c_str(), 1);
                 m_eventTree->SetBranchStatus(m_mcIdLeafName.c_str(), 1);
                 m_eventTree->SetBranchStatus(m_mcLocalIdLeafName.c_str(), 1);
                 m_eventTree->SetBranchAddress(m_eventLeafName.c_str(), &m_event);
@@ -576,6 +633,7 @@ StatusCode HierarchyAnalysisAlgorithm::ReadSettings(const TiXmlHandle xmlHandle)
                 m_eventTree->SetBranchAddress(m_unixTimeLeafName.c_str(), &m_unixTime);
                 m_eventTree->SetBranchAddress(m_startTimeLeafName.c_str(), &m_startTime);
                 m_eventTree->SetBranchAddress(m_endTimeLeafName.c_str(), &m_endTime);
+                m_eventTree->SetBranchAddress(m_triggersLeafName.c_str(), &m_triggers);
                 m_eventTree->SetBranchAddress(m_mcIdLeafName.c_str(), &m_mcIDs);
                 m_eventTree->SetBranchAddress(m_mcLocalIdLeafName.c_str(), &m_mcLocalIDs);
             }
