@@ -86,44 +86,72 @@ def main(argv=None):
 
         eventsToRun=len(events)
 
+        # Get the array of the trigger type for every event in the file
+        if useData==True:
+            triggerIDsData=flow_out["charge/events","charge/ext_trigs",events["id"][:]]
+            triggerIDsAll=np.array(np.ma.getdata(triggerIDsData["iogroup"]),dtype='int32')
+
+            triggerIDs = np.array( np.broadcast_to( (1 << 31) - 1, shape=eventsToRun ) )
+            for i in range(len(triggerIDsAll)):
+                if np.sum(triggerIDsAll[i])==0:
+                    continue
+                if 5 in triggerIDsAll[i]:
+                    triggerIDs[i] = 5
+                else:
+                    triggerIDs[i] = triggerIDsAll[i][0]
+        else:
+            triggerIDs = np.zeros( eventsToRun, dtype='int32' )
+
         for ievt in range(eventsToRun):
+            badEvt=False
+
             if ievt%10==0:
                 print('Currently on',ievt,'of',eventsToRun)
             event = events[ievt]
             event_calib_prompt_hits=flow_out["charge/events/","charge/calib_"+promptKey+"_hits", events["id"][ievt]]
 
             if len(event_calib_prompt_hits[0])==0:
-                print('This event seems empty in the hits array, skipping')
-                continue
+                print('This event seems empty in the hits array, setting as bad event. Trigger type (',triggerIDs[ievt],')')
+                badEvt=True
 
             # Removing duplicate hits_id instantiation and getting rid of hits_id_raw which is unused
             #######################################
-            hits_z = (np.ma.getdata(event_calib_prompt_hits["z"][0])+trueZOffset).astype('float32')
-            hits_y = ( np.ma.getdata(event_calib_prompt_hits["y"][0])+trueYOffset ).astype('float32')
-            hits_x = ( np.ma.getdata(event_calib_prompt_hits["x"][0])+trueXOffset ).astype('float32')
-            hits_Q = ( np.ma.getdata(event_calib_prompt_hits["Q"][0]) ).astype('float32')
-            hits_E = ( np.ma.getdata(event_calib_prompt_hits["E"][0]) ).astype('float32')
-            hits_ts = ( np.ma.getdata(event_calib_prompt_hits["ts_pps"][0]) ).astype('float32')
-            hits_ids = np.ma.getdata(event_calib_prompt_hits["id"][0])
+            if badEvt==False:
+                hits_z = (np.ma.getdata(event_calib_prompt_hits["z"][0])+trueZOffset).astype('float32')
+                hits_y = ( np.ma.getdata(event_calib_prompt_hits["y"][0])+trueYOffset ).astype('float32')
+                hits_x = ( np.ma.getdata(event_calib_prompt_hits["x"][0])+trueXOffset ).astype('float32')
+                hits_Q = ( np.ma.getdata(event_calib_prompt_hits["Q"][0]) ).astype('float32')
+                hits_E = ( np.ma.getdata(event_calib_prompt_hits["E"][0]) ).astype('float32')
+                hits_ts = ( np.ma.getdata(event_calib_prompt_hits["ts_pps"][0]) ).astype('float32')
+                hits_ids = np.ma.getdata(event_calib_prompt_hits["id"][0])
+            else:
+                hits_z = np.array([]).astype('float32')
+                hits_y = np.array([]).astype('float32')
+                hits_x = np.array([]).astype('float32')
+                hits_Q = np.array([]).astype('float32')
+                hits_E = np.array([]).astype('float32')
+                hits_ts = np.array([]).astype('float32')
+                hits_ids = np.array([])
 
             if len(hits_ids)<2:
-                print('This event has < 2 hit IDs, skipping')
-                continue
+                print('This event has < 2 hit IDs, setting as bad event. Trigger type (',triggerIDs[ievt],')')
+                badEvt=True
 
             # Start with the non-spill info, this is all ~like the current form
             #   but not repeating
             runID = np.array( [0], dtype='int32' )
             subrunID = np.array( [0], dtype='int32' )
             eventID = np.array( [event['id']], dtype='int32' )
-            event_start_t = np.array( [event['ts_start']], dtype='int32' )
-            event_end_t = np.array( [event['ts_end']], dtype='int32' )
-            event_unix_ts = np.array( [event['unix_ts']], dtype='int32' )
+            if badEvt==False:
+                event_start_t = np.array( [event['ts_start']], dtype='int32' )
+                event_end_t = np.array( [event['ts_end']], dtype='int32' )
+                event_unix_ts = np.array( [event['unix_ts']], dtype='int32' )
+            else:
+                event_start_t = np.array( [-5], dtype='int32' )
+                event_end_t = np.array( [-5], dtype='int32' )
+                event_unix_ts = np.array( [-5], dtype='int32' )
 
-            triggers = flow_out["charge/events","charge/ext_trigs",events["id"][ievt]]
-            
-            triggerArray=triggers["iogroup"]
-            
-            triggerID = np.array( np.ma.getdata(triggerArray),dtype='int32')
+            triggerID = np.array( [triggerIDs[ievt]], dtype='int32')
 
 
             # "uncalib" -- this alternative is not currently used in LArPandora that I can tell, so no need to save. Making optional to use the prompt or final hits to be saved.
