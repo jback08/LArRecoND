@@ -142,7 +142,9 @@ def main(argv=None):
             runID = np.array( [0], dtype='int32' )
             subrunID = np.array( [0], dtype='int32' )
             eventID = np.array( [event['id']], dtype='int32' )
-            if badEvt==False:
+            triggerID = np.array( [triggerIDs[ievt]], dtype='int32')
+
+            if triggerID!=((1 << 31)-1):
                 event_start_t = np.array( [event['ts_start']], dtype='int32' )
                 event_end_t = np.array( [event['ts_end']], dtype='int32' )
                 event_unix_ts = np.array( [event['unix_ts']], dtype='int32' )
@@ -150,9 +152,6 @@ def main(argv=None):
                 event_start_t = np.array( [-5], dtype='int32' )
                 event_end_t = np.array( [-5], dtype='int32' )
                 event_unix_ts = np.array( [-5], dtype='int32' )
-
-            triggerID = np.array( [triggerIDs[ievt]], dtype='int32')
-
 
             # "uncalib" -- this alternative is not currently used in LArPandora that I can tell, so no need to save. Making optional to use the prompt or final hits to be saved.
             #######################################
