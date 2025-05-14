@@ -175,6 +175,7 @@ def main(argv=None):
                     particleIDLocal = trajFromHits['traj_id'].astype('int64')
                     interactionIndex = trajFromHits['vertex_id'].astype('int64')
                 else:
+                    matches = np.array( [0] ).astype('float32')
                     packetFrac = np.array( [] ).astype('float32')
                     pdgHit = np.array( [] ).astype('int32')
                     trackID = np.array( [] ).astype('int32')
