@@ -264,7 +264,6 @@ void rootToRootConversion(
     std::vector<float> all_hit_packetFrac;
 
     for (unsigned int idx=0; idx<=NEvents; ++idx) {
-        if ( idx%100==0 ) std::cout << in_run << ":" << in_subrun << ":" << in_event << ":" << in_subevent << std::endl;
         if (idx!=NEvents){
             tr->GetEntry(idx);
         }
@@ -274,6 +273,7 @@ void rootToRootConversion(
             thisEvent = in_event;
 	    
 	}
+	if ( idx%100==0 ) std::cout << in_run << ":" << in_subrun << ":" << in_event << ":" << in_subevent << std::endl;
         if ( idx > 0 && ( (in_run!=thisRun || in_subrun!=thisSubRun || in_event!=thisEvent) || idx==NEvents ) ) {
             if ( isMC ) {
                 // Something has changed... finish with the matches, fill the tree, and reset
