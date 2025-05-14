@@ -87,20 +87,17 @@ def main(argv=None):
         eventsToRun=len(events)
 
         # Get the array of the trigger type for every event in the file
-        if useData==True:
-            triggerIDsData=flow_out["charge/events","charge/ext_trigs",events["id"][:]]
-            triggerIDsAll=np.array(np.ma.getdata(triggerIDsData["iogroup"]),dtype='int32')
+        triggerIDsData=flow_out["charge/events","charge/ext_trigs",events["id"][:]]
+        triggerIDsAll=np.array(np.ma.getdata(triggerIDsData["iogroup"]),dtype='int32')
 
-            triggerIDs = np.array( np.broadcast_to( (1 << 31) - 1, shape=eventsToRun ) )
-            for i in range(len(triggerIDsAll)):
-                if np.sum(triggerIDsAll[i])==0:
-                    continue
-                if 5 in triggerIDsAll[i]:
-                    triggerIDs[i] = 5
-                else:
-                    triggerIDs[i] = triggerIDsAll[i][0]
-        else:
-            triggerIDs = np.zeros( eventsToRun, dtype='int32' )
+        triggerIDs = np.array( np.broadcast_to( (1 << 31) - 1, shape=eventsToRun ) )
+        for i in range(len(triggerIDsAll)):
+            if np.sum(triggerIDsAll[i])==0:
+                continue
+            if 5 in triggerIDsAll[i]:
+                triggerIDs[i] = 5
+            else:
+                triggerIDs[i] = triggerIDsAll[i][0]
 
         for ievt in range(eventsToRun):
             badEvt=False
