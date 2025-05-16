@@ -146,7 +146,7 @@ def main(argv=None):
             if maxTimeFromTrigger > ((1 << 31)-1):
                 useTimeFromTrigger = False
 
-            if triggerID!=((1 << 31)-1) or useTimeFromTrigger==True:
+            if (triggerID!=((1 << 31)-1)) | (useTimeFromTrigger==True):
                 event_start_t = np.array( [event['ts_start']], dtype='int32' )
                 event_end_t = np.array( [event['ts_end']], dtype='int32' )
                 event_unix_ts = np.array( [event['unix_ts']], dtype='int32' )
