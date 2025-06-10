@@ -397,6 +397,7 @@ IDs for CAF truth matching:
 	<RunLeafName>run</RunLeafName>
 	<SubRunLeafName>subrun</SubRunLeafName>
 	<UnixTimeLeafName>unix_ts</UnixTimeLeafName>
+	<UnixTimeUsecLeafName>unix_ts_usec</UnixTimeUsecLeafName>
 	<StartTimeLeafName>event_start_t</StartTimeLeafName>
 	<EndTimeLeafName>event_end_t</EndTimeLeafName>
         <MCIdLeafName>mcp_id</MCIdLeafName>

@@ -150,10 +150,12 @@ def main(argv=None):
                 event_start_t = np.array( [event['ts_start']], dtype='int32' )
                 event_end_t = np.array( [event['ts_end']], dtype='int32' )
                 event_unix_ts = np.array( [event['unix_ts']], dtype='int32' )
+                event_unix_ts_usec = np.array( [event['unix_ts_usec']], dtype='int32' )
             else:
                 event_start_t = np.array( [-5], dtype='int32' )
                 event_end_t = np.array( [-5], dtype='int32' )
                 event_unix_ts = np.array( [-5], dtype='int32' )
+                event_unix_ts_usec = np.array( [-5], dtype='int32' )
 
             # "uncalib" -- this alternative is not currently used in LArPandora that I can tell, so no need to save. Making optional to use the prompt or final hits to be saved.
             #######################################
@@ -256,7 +258,8 @@ def main(argv=None):
                 nu_code = codes
 
             ## Rebuild now with all the individual types
-            event_dict = { 'run':runID, 'subrun':subrunID, 'event':eventID, "triggers":triggerID, 'unix_ts':event_unix_ts, 'event_start_t':event_start_t, 'event_end_t':event_end_t }
+            event_dict = { 'run':runID, 'subrun':subrunID, 'event':eventID, "triggers":triggerID, 'unix_ts':event_unix_ts, 'unix_ts_usec':event_unix_ts_usec,
+                           'event_start_t':event_start_t, 'event_end_t':event_end_t }
 
             if useData==False:
                 other_dict = {  'x':hits_x, 'y':hits_y, 'z':hits_z, 'ts':hits_ts, 'charge':hits_Q, 'E':hits_E, 'matches':matches,\

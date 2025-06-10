@@ -29,7 +29,7 @@ void rootToRootConversion(
     const int MaxDepthArrayNu = isMC ? 500 : 1;
 
     // Get the data products FROM the tree
-    int in_run, in_subrun, in_event, in_subevent, in_event_start_t, in_event_end_t, in_unix_ts, in_triggers;
+    int in_run, in_subrun, in_event, in_subevent, in_event_start_t, in_event_end_t, in_unix_ts, in_unix_ts_usec, in_triggers;
 
     // hits
     int Nhits;
@@ -89,6 +89,7 @@ void rootToRootConversion(
     tr->SetBranchAddress("event",&in_event);
     tr->SetBranchAddress("triggers",&in_triggers);
     tr->SetBranchAddress("unix_ts",&in_unix_ts);
+    tr->SetBranchAddress("unix_ts_usec",&in_unix_ts_usec);
     tr->SetBranchAddress("event_start_t",&in_event_start_t);
     tr->SetBranchAddress("event_end_t",&in_event_end_t);
     tr->SetBranchAddress("subevent",&in_subevent);
@@ -150,7 +151,7 @@ void rootToRootConversion(
     std::cout << "Loaded in tree with " << NEvents << " entries." << std::endl;
 
     // OUTPUT TREE
-    int run, subrun, event, event_start_t, event_end_t, unix_ts, nhits;
+    int run, subrun, event, event_start_t, event_end_t, unix_ts, unix_ts_usec, nhits;
     int triggers;
     std::vector<float> x;
     std::vector<float> y;
@@ -207,6 +208,7 @@ void rootToRootConversion(
     outgoingTree->Branch("event_end_t", &event_end_t);
     outgoingTree->Branch("triggers",&triggers);
     outgoingTree->Branch("unix_ts", &unix_ts);
+    outgoingTree->Branch("unix_ts_usec", &unix_ts_usec);
     outgoingTree->Branch("nhits",&nhits);
     outgoingTree->Branch("x", &x);
     outgoingTree->Branch("y", &y);
@@ -409,6 +411,7 @@ void rootToRootConversion(
         event_start_t = in_event_start_t;
         event_end_t = in_event_end_t;
         unix_ts = in_unix_ts;
+        unix_ts_usec = in_unix_ts_usec;
         triggers = in_triggers;
 	
         // fill up the vectors for as much stuff as we can in this subevent:
