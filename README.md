@@ -172,6 +172,61 @@ If you get runtime warnings about missing parameter files, then make sure they a
 [LArMachineLearningData](#larmachinelearningdata) directory and their relative locations are specified
 by the $FW_SEARCH_PATH environment variable, which is set by the [tags.sh](scripts/tags.sh) script.
 
+### Converting hdf5 files from FLOW to ROOT
+
+Scripts exist to extract the necessary components from the FLOW files, which are in hdf5 format, and store them as a ROOT 
+TTree read by `LArRecoND`. Running this conversion does **NOT** require one to have `LArRecoND` installed and relies on
+Python and ROOT. It does however, require some non-standard Python packages, and thus the following instructions make use
+of a virtual environment. First, source the relevant setup script from `LArRecoND`, e.g. assuming Alma9 and a Fermilab gpvm:
+
+```Shell
+source scripts/Alma9_FNAL.sh
+```
+
+then
+
+```Shell
+git clone https://github.com/lbl-neutrino/h5flow.git
+python3 -m venv pandora.venv
+source pandora.venv/bin/activate
+cd h5flow
+pip3 install .
+
+pip3 install uproot
+```
+
+Then to run the conversion, this takes place in 2 steps:
+- hdf5 to ROOT: make a first ROOT file from the hdf5 file, but it is in a
+"subevent" format which may have more than 1 entry per event
+- ROOT to ROOT: take the "subevent" level ROOT file and package it with one entry per event
+
+**STEP 1:**
+This hdf5-to-ROOT conversion works as follows:
+```
+python h5_to_root_ndlarflow.py FileList IsData IsFinalHits OutName
+-- Parameters
+FileList    [REQUIRED]:                                         comma separated set of files to convert - note it will be one output
+IsData      [OPTIONAL, DEFAULT = 0, is MC]:                     1 = Data, otherwise = MC
+IsFinalHits [OPTIONAL, DEFAULT = 0, prompt hits]:               1 = use "final" hits, otherwise = "prompt"
+OutName     [OPTIONAL, DEFAULT = input[0]+"_hits_uproot.root"]: string for an output file name if you want to override. Note that default writes to current directory.
+```
+
+**STEP 2:**
+Then the ROOT-to-ROOT conversion is a ROOT macro that can be run in compiled form. It has the following options:
+
+```
+rootToRootConversion(
+  const bool isMC=true,           ---> whether this is MC [true] or data [false]
+  const std::string fname,        ---> the input file name
+  const std::string outname )     ---> the output file name
+```
+
+so for example
+
+```Shell
+root -l -b -q rootToRootConversion.C++\(true,\"myfile_hits_uproot.root\",\"myfile_hits.root\"\)
+```
+
 ### Geometry files
 
 The ND-LAr geometry needs to be provided as a ROOT file containing the
@@ -210,7 +265,7 @@ the input data ROOT file containing the hits and the geometry ROOT file, respect
 number of events (in this case 10) while `-N` prints out event information.
 
 The input hit data ROOT file uses the default [SpacePoint](include/LArSP.h) format, which needs to be previously
-converted from the original HDF5 format by the [ndlarflow/h5_to_root_ndlarflow.py](ndlarflow/h5_to_root_ndlarflow.py) script:
+converted from the original HDF5 format (see relevant section above):
 
 ```Shell
 python ndlarflow/h5_to_root_ndlarflow.py inputHDF5File 1 outputDir
@@ -241,8 +296,7 @@ input to use the [SpacePoint MC](include/LArSPMC.h) format, which stores all of 
 this is not done by the default `-f SP` format option (the ROOT data structures are different).
 The `-n` option sets the number of events (in this case 10) while `-N` prints out event information.
 
-The input MC ROOT file needs to be previously converted from the original HDF5 format by the
-[ndlarflow/h5_to_root_ndlarflow.py](ndlarflow/h5_to_root_ndlarflow.py) script:
+The input MC ROOT file needs to be previously converted from the original HDF5 format (see relevant section above):
 
 ```Shell
 python ndlarflow/h5_to_root_ndlarflow.py inputHDF5File 0 outputDir
