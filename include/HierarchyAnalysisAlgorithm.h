@@ -124,7 +124,7 @@ private:
     std::string m_mcIdLeafName;        ///< Name of the uniqne MC particle ID leaf/variable
     std::string m_mcLocalIdLeafName;   ///< Name of the local MC particle ID leaf/variable
     int m_eventsToSkip;                ///< The number of events to skip (from the start of the event file)
-    int m_minhitsToSkip;               ///< The number of events where PandoraInterface is being told to skip the event
+    int m_minHitsToSkip;               ///< The number of events where PandoraInterface is being told to skip the event
     TFile *m_eventFile;                ///< The ROOT event file pointer
     TTree *m_eventTree;                ///< The ROOT event tree pointer
     std::string m_caloHitListName;     ///< Name of input calo hit list

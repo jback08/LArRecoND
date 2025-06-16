@@ -43,6 +43,7 @@ HierarchyAnalysisAlgorithm::HierarchyAnalysisAlgorithm() :
     m_endTimeLeafName{"event_end_t"},
     m_triggersLeafName{"triggers"},
     m_nhitsLeafName{"nhits"},
+    m_minHitsToSkip{2},
     m_mcIdLeafName{"mcp_id"},
     m_mcLocalIdLeafName{"mcp_idLocal"},
     m_eventsToSkip{0},
@@ -93,12 +94,8 @@ StatusCode HierarchyAnalysisAlgorithm::Run()
     // Increment the algorithm run count
     ++m_count;
 
-    std::cout << "I think I'm on event " << m_count+m_eventsToSkip << std::endl;
-
     // Set the event run number and trigger timing info, as well as the unique-local MCParticle Id map
     this->SetEventRunMCIdInfo();
-
-    std::cout << "I'm actually on event " << m_count+m_eventsToSkip << std::endl;
 
     // Need to use 2D calo hit list for now since LArHierarchyHelper::MCHierarchy::IsReconstructable()
     // checks for minimum number of hits in the U, V & W views only, which will fail for 3D
@@ -152,10 +149,10 @@ void HierarchyAnalysisAlgorithm::SetEventRunMCIdInfo()
         m_eventTree->GetEntry(iEntry);
 
 	// Check if we should actually be pointing to a higher event number due to skipping some events in Pandora
-	if ( m_nhits < m_minhitsToSkip ) {
+	if ( m_nhits < m_minHitsToSkip ) {
 	  // Skip ahead as many events as we need to
 	  int thisHits = m_nhits;
-	  while ( thisHits < m_minhitsToSkip ) {
+	  while ( thisHits < m_minHitsToSkip ) {
 	    m_count+=1;
 	    const int newEntry = m_count + m_eventsToSkip;
 	    m_eventTree->GetEntry(newEntry);
@@ -637,7 +634,7 @@ StatusCode HierarchyAnalysisAlgorithm::ReadSettings(const TiXmlHandle xmlHandle)
 
     PANDORA_RETURN_RESULT_IF_AND_IF(STATUS_CODE_SUCCESS, STATUS_CODE_NOT_FOUND, !=, XmlHelper::ReadValue(xmlHandle, "EventsToSkip", m_eventsToSkip));
 
-    PANDORA_RETURN_RESULT_IF_AND_IF(STATUS_CODE_SUCCESS, STATUS_CODE_NOT_FOUND, !=, XmlHelper::ReadValue(xmlHandle, "MinHitsToSkip", m_minhitsToSkip));
+    PANDORA_RETURN_RESULT_IF_AND_IF(STATUS_CODE_SUCCESS, STATUS_CODE_NOT_FOUND, !=, XmlHelper::ReadValue(xmlHandle, "MinHitsToSkip", m_minHitsToSkip));
 
     // Setup the event ROOT file
     if (m_eventFileName.size() > 0)
