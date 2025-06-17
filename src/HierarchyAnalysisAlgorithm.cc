@@ -407,12 +407,18 @@ void HierarchyAnalysisAlgorithm::EventAnalysisOutput(const LArHierarchyHelper::M
                 const CartesianVector mcEndPoint = (pLeadingMC != nullptr) ? pLeadingMC->GetEndpoint() : CartesianVector(max, max, max);
 
                 // Retrieve MC parent info
-                const MCParticleList &parentList{ pLeadingMC->GetParentList() };
-
-                if( parentList.size() == 1 ){
-                    mcParentPDGVect.emplace_back( parentList.front()->GetParticleId() );
-                    mcParentIdVect.emplace_back(  reinterpret_cast<intptr_t>(parentList.front()->GetUid()) ); 
+                int mcParentPDG{-999}, mcParentId{-999};
+                if( pLeadingMC ){
+                    const MCParticleList &parentList{ pLeadingMC->GetParentList() };
+                    if( !parentList.empty() ){
+                        const MCParticle *pParent{ parentList.front() };
+                        mcParentPDG = (pParent != nullptr) ? pParent->GetParticleId() : -999;
+                        mcParentId  = (pParent != nullptr) ? reinterpret_cast<intptr_t>(pParent->GetUid()) : -999;
+                    }
                 }
+
+                mcParentPDGVect.emplace_back( mcParentPDG );
+                mcParentIdVect.emplace_back( mcParentId );
 
                 // MC neutrino parent info, including Nuance interaction code
                 const MCParticle *pNuRoot = bestMatch.m_pNuRoot;
