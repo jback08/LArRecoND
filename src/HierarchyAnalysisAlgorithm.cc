@@ -200,7 +200,9 @@ void HierarchyAnalysisAlgorithm::EventAnalysisOutput(const LArHierarchyHelper::M
     FloatVector mcNuVtxXVect, mcNuVtxYVect, mcNuVtxZVect;
     FloatVector mcNuEVect, mcNuPxVect, mcNuPyVect, mcNuPzVect;
     // Long integers for the MC IDs: vertex, unique and local trajectories
-    std::vector<long> mcNuIdVect, mcIdVect, mcLocalIdVect;
+    std::vector<long> mcNuIdVect, mcIdVect, mcLocalIdVect, mcParentIdVect;
+    //MC pfo parent info
+    IntVector mcParentPDGVect;
 
     // Hit info for each reconstructed PFO. Since we can't store vectors of vectors, the size of
     // these vectors = n3DHits*nPFOs, whereas all of the above vectors have size = nPFOs.
@@ -404,6 +406,20 @@ void HierarchyAnalysisAlgorithm::EventAnalysisOutput(const LArHierarchyHelper::M
                 const CartesianVector mcVertex = (pLeadingMC != nullptr) ? pLeadingMC->GetVertex() : CartesianVector(max, max, max);
                 const CartesianVector mcEndPoint = (pLeadingMC != nullptr) ? pLeadingMC->GetEndpoint() : CartesianVector(max, max, max);
 
+                // Retrieve MC parent info
+                int mcParentPDG{-999}, mcParentId{-999};
+                if( pLeadingMC ){
+                    const MCParticleList &parentList{ pLeadingMC->GetParentList() };
+                    if( !parentList.empty() ){
+                        const MCParticle *pParent{ parentList.front() };
+                        mcParentPDG = (pParent != nullptr) ? pParent->GetParticleId() : -999;
+                        mcParentId  = (pParent != nullptr) ? reinterpret_cast<intptr_t>(pParent->GetUid()) : -999;
+                    }
+                }
+
+                mcParentPDGVect.emplace_back( mcParentPDG );
+                mcParentIdVect.emplace_back( mcParentId );
+
                 // MC neutrino parent info, including Nuance interaction code
                 const MCParticle *pNuRoot = bestMatch.m_pNuRoot;
                 const int mcNuPDG = (pNuRoot != nullptr) ? pNuRoot->GetParticleId() : 0;
@@ -522,6 +538,8 @@ void HierarchyAnalysisAlgorithm::EventAnalysisOutput(const LArHierarchyHelper::M
     PANDORA_MONITORING_API(SetTreeVariable(this->GetPandora(), m_analysisTreeName.c_str(), "mcNuPx", &mcNuPxVect));
     PANDORA_MONITORING_API(SetTreeVariable(this->GetPandora(), m_analysisTreeName.c_str(), "mcNuPy", &mcNuPyVect));
     PANDORA_MONITORING_API(SetTreeVariable(this->GetPandora(), m_analysisTreeName.c_str(), "mcNuPz", &mcNuPzVect));
+    PANDORA_MONITORING_API(SetTreeVariable(this->GetPandora(), m_analysisTreeName.c_str(), "mcParentPDG", &mcParentPDGVect));
+    PANDORA_MONITORING_API(SetTreeVariable(this->GetPandora(), m_analysisTreeName.c_str(), "mcParentId", &mcParentIdVect));
 
     PANDORA_MONITORING_API(FillTree(this->GetPandora(), m_analysisTreeName.c_str()));
 }
