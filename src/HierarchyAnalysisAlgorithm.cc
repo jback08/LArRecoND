@@ -150,17 +150,19 @@ void HierarchyAnalysisAlgorithm::SetEventRunMCIdInfo()
         const int iEntry = m_count + m_eventsToSkip;
         m_eventTree->GetEntry(iEntry);
 
-	// Check if we should actually be pointing to a higher event number due to skipping some events in Pandora
-	if ( m_nhits < m_minHitsToSkip ) {
-	  // Skip ahead as many events as we need to
-	  int thisHits = m_nhits;
-	  while ( thisHits < m_minHitsToSkip ) {
-	    m_count+=1;
-	    const int newEntry = m_count + m_eventsToSkip;
-	    m_eventTree->GetEntry(newEntry);
-	    thisHits = m_nhits;
-	  }
-	}
+        // Check if we should actually be pointing to a higher event number due to skipping some events in Pandora
+        if (m_nhits < m_minHitsToSkip)
+        {
+            // Skip ahead as many events as we need to
+            int thisHits = m_nhits;
+            while (thisHits < m_minHitsToSkip)
+            {
+                m_count += 1;
+                const int newEntry = m_count + m_eventsToSkip;
+                m_eventTree->GetEntry(newEntry);
+                thisHits = m_nhits;
+            }
+        }
 
         // Fill the Id map
         if (m_gotMCEventInput)
@@ -410,17 +412,19 @@ void HierarchyAnalysisAlgorithm::EventAnalysisOutput(const LArHierarchyHelper::M
 
                 // Retrieve MC parent info
                 int mcParentPDG{-999}, mcParentId{-999};
-                if( pLeadingMC ){
-                    const MCParticleList &parentList{ pLeadingMC->GetParentList() };
-                    if( !parentList.empty() ){
-                        const MCParticle *pParent{ parentList.front() };
+                if (pLeadingMC)
+                {
+                    const MCParticleList &parentList{pLeadingMC->GetParentList()};
+                    if (!parentList.empty())
+                    {
+                        const MCParticle *pParent{parentList.front()};
                         mcParentPDG = (pParent != nullptr) ? pParent->GetParticleId() : -999;
-                        mcParentId  = (pParent != nullptr) ? reinterpret_cast<intptr_t>(pParent->GetUid()) : -999;
+                        mcParentId = (pParent != nullptr) ? reinterpret_cast<intptr_t>(pParent->GetUid()) : -999;
                     }
                 }
 
-                mcParentPDGVect.emplace_back( mcParentPDG );
-                mcParentIdVect.emplace_back( mcParentId );
+                mcParentPDGVect.emplace_back(mcParentPDG);
+                mcParentIdVect.emplace_back(mcParentId);
 
                 // MC neutrino parent info, including Nuance interaction code
                 const MCParticle *pNuRoot = bestMatch.m_pNuRoot;
@@ -648,8 +652,7 @@ StatusCode HierarchyAnalysisAlgorithm::ReadSettings(const TiXmlHandle xmlHandle)
     PANDORA_RETURN_RESULT_IF_AND_IF(STATUS_CODE_SUCCESS, STATUS_CODE_NOT_FOUND, !=, XmlHelper::ReadValue(xmlHandle, "EndTimeLeafName", m_endTimeLeafName));
     PANDORA_RETURN_RESULT_IF_AND_IF(
         STATUS_CODE_SUCCESS, STATUS_CODE_NOT_FOUND, !=, XmlHelper::ReadValue(xmlHandle, "TriggersLeafName", m_triggersLeafName));
-    PANDORA_RETURN_RESULT_IF_AND_IF(
-	STATUS_CODE_SUCCESS, STATUS_CODE_NOT_FOUND, !=, XmlHelper::ReadValue(xmlHandle, "NHitsLeafName", m_nhitsLeafName));
+    PANDORA_RETURN_RESULT_IF_AND_IF(STATUS_CODE_SUCCESS, STATUS_CODE_NOT_FOUND, !=, XmlHelper::ReadValue(xmlHandle, "NHitsLeafName", m_nhitsLeafName));
 
     PANDORA_RETURN_RESULT_IF_AND_IF(STATUS_CODE_SUCCESS, STATUS_CODE_NOT_FOUND, !=, XmlHelper::ReadValue(xmlHandle, "MCIdLeafName", m_mcIdLeafName));
     PANDORA_RETURN_RESULT_IF_AND_IF(
@@ -679,7 +682,7 @@ StatusCode HierarchyAnalysisAlgorithm::ReadSettings(const TiXmlHandle xmlHandle)
                 m_eventTree->SetBranchStatus(m_startTimeLeafName.c_str(), 1);
                 m_eventTree->SetBranchStatus(m_endTimeLeafName.c_str(), 1);
                 m_eventTree->SetBranchStatus(m_triggersLeafName.c_str(), 1);
-		m_eventTree->SetBranchStatus(m_nhitsLeafName.c_str(), 1);
+                m_eventTree->SetBranchStatus(m_nhitsLeafName.c_str(), 1);
                 m_eventTree->SetBranchAddress(m_eventLeafName.c_str(), &m_event);
                 m_eventTree->SetBranchAddress(m_runLeafName.c_str(), &m_run);
                 m_eventTree->SetBranchAddress(m_subRunLeafName.c_str(), &m_subRun);
@@ -688,7 +691,7 @@ StatusCode HierarchyAnalysisAlgorithm::ReadSettings(const TiXmlHandle xmlHandle)
                 m_eventTree->SetBranchAddress(m_startTimeLeafName.c_str(), &m_startTime);
                 m_eventTree->SetBranchAddress(m_endTimeLeafName.c_str(), &m_endTime);
                 m_eventTree->SetBranchAddress(m_triggersLeafName.c_str(), &m_triggers);
-		m_eventTree->SetBranchAddress(m_nhitsLeafName.c_str(), &m_nhits);
+                m_eventTree->SetBranchAddress(m_nhitsLeafName.c_str(), &m_nhits);
 
                 // Check if we have MC branches
                 if (m_eventTree->GetBranch(m_mcIdLeafName.c_str()) && m_eventTree->GetBranch(m_mcLocalIdLeafName.c_str()))
