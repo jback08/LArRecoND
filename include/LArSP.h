@@ -82,7 +82,7 @@ public:
 
 //------------------------------------------------------------------------------------------------------------------------------------------
 
-LArSP::LArSP(TTree *tree) : m_fChain(nullptr)
+inline LArSP::LArSP(TTree *tree) : m_fChain(nullptr)
 {
     // if parameter tree is not specified (or zero), connect the file
     // used to generate this class and read the Tree.
@@ -100,7 +100,7 @@ LArSP::LArSP(TTree *tree) : m_fChain(nullptr)
 
 //------------------------------------------------------------------------------------------------------------------------------------------
 
-LArSP::~LArSP()
+inline LArSP::~LArSP()
 {
     if (!m_fChain)
         return;
@@ -109,7 +109,7 @@ LArSP::~LArSP()
 
 //------------------------------------------------------------------------------------------------------------------------------------------
 
-Int_t LArSP::GetEntry(Long64_t entry)
+inline Int_t LArSP::GetEntry(Long64_t entry)
 {
     // Read contents of entry.
     if (!m_fChain)
@@ -119,7 +119,7 @@ Int_t LArSP::GetEntry(Long64_t entry)
 
 //------------------------------------------------------------------------------------------------------------------------------------------
 
-void LArSP::Init(TTree *tree)
+inline void LArSP::Init(TTree *tree)
 {
     // The Init() function is called when the selector needs to initialize
     // a new tree or chain. Typically here the branch addresses and branch

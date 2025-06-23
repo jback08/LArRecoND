@@ -148,7 +148,7 @@ private:
 
 //------------------------------------------------------------------------------------------------------------------------------------------
 
-LArNDGeomSimple::LArNDGeomSimple()
+inline LArNDGeomSimple::LArNDGeomSimple()
 {
 }
 

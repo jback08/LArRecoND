@@ -110,7 +110,7 @@ public:
     TBranch *m_b_ccnc = nullptr;
 };
 
-LArSPMC::LArSPMC(TTree *tree) : LArSP(tree)
+inline LArSPMC::LArSPMC(TTree *tree) : LArSP(tree)
 {
     if (tree == nullptr)
     {
@@ -119,11 +119,11 @@ LArSPMC::LArSPMC(TTree *tree) : LArSP(tree)
     InitMC(tree);
 }
 
-LArSPMC::~LArSPMC()
+inline LArSPMC::~LArSPMC()
 {
 }
 
-void LArSPMC::InitMC(TTree *tree)
+inline void LArSPMC::InitMC(TTree *tree)
 {
     // The Init() function is called when the selector needs to initialize
     // a new tree or chain. Typically here the branch addresses and branch
