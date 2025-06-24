@@ -11,6 +11,7 @@
 #include "Pandora/Pandora.h"
 
 #include "NDParameters.h"
+#include "NDSimpleTPCGeom.h"
 
 #include <map>
 #include <string>
@@ -23,6 +24,7 @@ class MainNDPandora
 {
 public:
     typedef std::map<const std::string, const NDParameters> NDParametersMap;
+    typedef std::map<const std::string, NDSimpleTPCGeom> NDSimpleTPCGeomMap;
     typedef std::vector<std::string> nameVector;
 
     /**
@@ -45,6 +47,16 @@ public:
      *  @param  parameters The parameters
      */
     void AddPandoraInstance(const std::string &name, const NDParameters &parameters);
+
+    /**
+     * @brief Create the TPC geometry for all Pandora instances
+     */
+    void CreatePandoraTPCs();
+
+    /**
+     * @brief Create the gaps across the TPCs
+     */
+    void CreatePandoraDetectorGaps();
 
     /**
      *  @brief  Get the Pandora instance
@@ -84,10 +96,11 @@ private:
      */
     const pandora::Pandora *CreatePandoraInstance(const std::string &name, const NDParameters &parameters) const;
 
-    NDParameters m_mainParameters;          ///< The steering parameters
-    const pandora::Pandora *m_pMainPandora; ///< The main Pandora instance pointer
-    NDParametersMap m_NDParametersMap;      ///< Map of NDParameters
-    nameVector m_instanceOrder;             ///< Pandora named instance insertion order
+    NDParameters m_mainParameters;           ///< The steering parameters
+    const pandora::Pandora *m_pMainPandora;  ///< The main Pandora instance pointer
+    NDParametersMap m_NDParametersMap;       ///< Map of NDParameters
+    NDSimpleTPCGeomMap m_NDSimpleTPCGeomMap; ///< Map of the TPC geometries
+    nameVector m_instanceOrder;              ///< Pandora named instance insertion order
 };
 
 } // namespace lar_nd_reco

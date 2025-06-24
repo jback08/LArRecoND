@@ -40,6 +40,8 @@ int main(int argc, char *argv[])
 	LArNDPars.m_tpcName = "volTPCActive";
 	LArNDPars.m_inputFileName = "data/ND-LAr/MicroProdN3p1_NDLAr_2E18_FHC.flow.nu.0000001.FLOW.hdf5_hits_withMC.root";
 	LArNDPars.m_inputTreeName = "events";
+	LArNDPars.m_geomFileName = "data/ND-LAr/NDLArGeom.root";
+	LArNDPars.m_geomManagerName = "Default";
 	mainND.AddPandoraInstance("LArND", LArNDPars);
 
 	NDParameters TMSPars(parameters);
@@ -48,9 +50,18 @@ int main(int argc, char *argv[])
 	TMSPars.m_dataFormat = NDParameters::DataFormat::TMSMC;
 	TMSPars.m_inputFileName = "data/ND-LAr/MicroProdN3p1_NDLAr_2E18_FHC.tmsreco.nu.0000001.TMSRECOREADOUT.root";
 	TMSPars.m_inputTreeName = "TMS";
+	TMSPars.m_geomFileName = "data/ND-LAr/NDLArGeom.root";
+	TMSPars.m_geomManagerName = "Default";
 	TMSPars.m_lengthScale = 0.1; // mm to cm
 	TMSPars.m_energyScale = 1e-3; // MeV to GeV
 	mainND.AddPandoraInstance("TMS", TMSPars);
+
+	// Create the TPC geometry using the tpcNames in the NDParameters geometry ROOT file.
+	// This creates TPCs for both the main & added Pandora instances
+	mainND.CreatePandoraTPCs();
+
+	// Create detector gaps
+	mainND.CreatePandoraDetectorGaps();
 
 	std::cout<<"Done"<<std::endl;
     }
