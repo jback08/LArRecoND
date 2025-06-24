@@ -81,15 +81,18 @@ add_library(${PROJECT_NAME} SHARED ${LAR_RECO_ND_SRCS})
 set_target_properties(${PROJECT_NAME} PROPERTIES VERSION ${${PROJECT_NAME}_VERSION} SOVERSION ${${PROJECT_NAME}_SOVERSION})
 
 # - Executable
+add_executable(LArRecoNDApp ${PROJECT_SOURCE_DIR}/app/LArRecoNDApp.cxx)
 add_executable(PandoraInterface ${PROJECT_SOURCE_DIR}/test/PandoraInterface.cxx)
 if(PANDORA_MONITORING)
     include_directories(${ROOT_INCLUDE_DIRS})
+    target_link_libraries(LArRecoNDApp ${ROOT_LIBRARIES})
     if(USE_EDEPSIM)
         target_link_libraries(PandoraInterface ${ROOT_LIBRARIES} EDepSim::edepsim_io)
     else()
         target_link_libraries(PandoraInterface ${ROOT_LIBRARIES})
     endif()
 endif()
+target_link_libraries(LArRecoNDApp ${PROJECT_NAME})
 target_link_libraries(PandoraInterface ${PROJECT_NAME})
 
 # - Optional documents
@@ -108,6 +111,7 @@ install(TARGETS ${PROJECT_NAME} DESTINATION lib COMPONENT Runtime)
 install(DIRECTORY include/ DESTINATION include COMPONENT Development FILES_MATCHING PATTERN "*.h")
 
 # - executable
+install(TARGETS LArRecoNDApp DESTINATION bin PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
 install(TARGETS PandoraInterface DESTINATION bin PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
 
 #-------------------------------------------------------------------------------------------------------------------------------------------
