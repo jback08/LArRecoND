@@ -13,6 +13,7 @@
 #include "Pandora/Pandora.h"
 
 #include "CandidateVertexCreationThreeDAlgorithm.h"
+#include "CreateMainNDListsAlgorithm.h"
 #include "CreateTwoDClustersFromThreeDAlgorithm.h"
 #include "CutClusterCharacterisationThreeDAlgorithm.h"
 #include "EventSlicingThreeDTool.h"
@@ -38,7 +39,8 @@
     d("LArPreProcessingThreeD",                 PreProcessingThreeDAlgorithm)                                                      \
     d("LArCutClusterCharacterisationThreeD",    CutClusterCharacterisationThreeDAlgorithm)                                         \
     d("LArCandidateVertexCreationThreeD",       CandidateVertexCreationThreeDAlgorithm)                                            \
-    d("LArHierarchyAnalysis",                   HierarchyAnalysisAlgorithm)
+    d("LArHierarchyAnalysis",                   HierarchyAnalysisAlgorithm)                                                        \
+    d("LArCreateMainNDLists",                   CreateMainNDListsAlgorithm)
 
 #define LAR_ND_ALGORITHM_TOOL_LIST(d)                                                                                              \
     d("LArEventSlicingThreeD",                  EventSlicingThreeDTool)                                                            \

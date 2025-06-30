@@ -10,6 +10,7 @@
 
 #include "Pandora/Pandora.h"
 
+#include "NDEventInput.h"
 #include "NDParameters.h"
 #include "NDSimpleTPCGeom.h"
 
@@ -25,6 +26,7 @@ class MainNDPandora
 public:
     typedef std::map<const std::string, const NDParameters> NDParametersMap;
     typedef std::map<const std::string, NDSimpleTPCGeom> NDSimpleTPCGeomMap;
+    typedef std::map<const std::string, const NDEventInput *> NDEventInputMap;
     typedef std::vector<std::string> nameVector;
 
     /**
@@ -59,6 +61,21 @@ public:
     void CreatePandoraDetectorGaps();
 
     /**
+     * @brief Process the xml settings for all Pandora instances
+     */
+    void ConfigurePandoraInstances();
+
+    /**
+     * @brief Setup the event inputs for all Pandora instances
+     */
+    void ConfigureEventInputs();
+
+    /**
+     * @brief Let all Pandora instances process the input events
+     */
+    void ProcessEvents();
+
+    /**
      *  @brief  Get the Pandora instance
      *
      *  @return The main Pandora instance pointer
@@ -86,6 +103,22 @@ public:
      */
     const NDParameters GetPandoraParameters(const std::string &name) const;
 
+    /**
+     *  @brief  Get the TPC geometry info for the given Pandora instance
+     *
+     *  @param  name The name of the Pandora instance
+     *  @return The TPC geometry info
+     */
+    const NDSimpleTPCGeom GetNDSimpleTPCGeom(const std::string &name) const;
+
+    /**
+     *  @brief  Get the event input pointer for the given Pandora instance
+     *
+     *  @param  name The name of the Pandora instance
+     *  @return The event input pointer
+     */
+    const NDEventInput *GetNDEventInput(const std::string &name) const;
+
 private:
     /**
      *  @brief  Create the Pandora instance
@@ -96,10 +129,26 @@ private:
      */
     const pandora::Pandora *CreatePandoraInstance(const std::string &name, const NDParameters &parameters) const;
 
+    /**
+     *  @brief  Process list of external, commandline parameters to be passed to specific algorithms
+     *
+     *  @param  pPandora the address of the Pandora instance
+     *  @param  parameters the parameters
+     */
+    void ProcessExternalParameters(const pandora::Pandora *const pPandora, const NDParameters &parameters) const;
+
+    /**
+     *  @brief  Copy the PFOs from the pPandora instance to the main instance
+     *
+     *  @param  pPandora the address of the Pandora instance
+     */
+    void CopyPFOs(const pandora::Pandora *const pPandora) const;
+
     NDParameters m_mainParameters;           ///< The steering parameters
     const pandora::Pandora *m_pMainPandora;  ///< The main Pandora instance pointer
     NDParametersMap m_NDParametersMap;       ///< Map of NDParameters
     NDSimpleTPCGeomMap m_NDSimpleTPCGeomMap; ///< Map of the TPC geometries
+    NDEventInputMap m_NDEventInputMap;       ///< Map of event pointer inputs
     nameVector m_instanceOrder;              ///< Pandora named instance insertion order
 };
 

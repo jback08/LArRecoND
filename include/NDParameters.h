@@ -48,6 +48,7 @@ public:
     DataFormat m_dataFormat; ///< The input data format
     bool m_use3D;            ///< Create 3D LArCaloHits
     bool m_useLArTPC;        ///< Create LArTPC-like LArCaloHits with U,V,W views
+    float m_voxelWidth;      ///< Voxel box width (cm), default = 0.4 cm
     float m_lengthScale;     ///< The scaling factor to set all lengths to cm
     float m_energyScale;     ///< The scaling factor to set all energies to GeV
 
@@ -79,6 +80,7 @@ inline NDParameters::NDParameters() :
     m_dataFormat(NDParameters::DataFormat::SP),
     m_use3D(true),
     m_useLArTPC(true),
+    m_voxelWidth(0.4f),
     m_lengthScale(1.f),
     m_energyScale(1.f),
     m_nEventsToProcess(-1),

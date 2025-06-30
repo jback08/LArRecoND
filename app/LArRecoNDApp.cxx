@@ -33,6 +33,7 @@ int main(int argc, char *argv[])
         pTApplication->SetReturnFromRun(kTRUE);
 #endif
 
+	parameters.m_settingsFile = "settings/PandoraSettings_LArRecoND_Main.xml";
 	MainNDPandora mainND("MainND", parameters);
 
 	NDParameters LArNDPars(parameters);
@@ -42,6 +43,7 @@ int main(int argc, char *argv[])
 	LArNDPars.m_inputTreeName = "events";
 	LArNDPars.m_geomFileName = "data/ND-LAr/NDLArGeom.root";
 	LArNDPars.m_geomManagerName = "Default";
+	LArNDPars.m_settingsFile = "settings/PandoraSettings_LArRecoND_ThreeD_Evt.xml";
 	mainND.AddPandoraInstance("LArND", LArNDPars);
 
 	NDParameters TMSPars(parameters);
@@ -54,6 +56,7 @@ int main(int argc, char *argv[])
 	TMSPars.m_geomManagerName = "Default";
 	TMSPars.m_lengthScale = 0.1; // mm to cm
 	TMSPars.m_energyScale = 1e-3; // MeV to GeV
+	TMSPars.m_settingsFile = "settings/PandoraSettings_LArRecoND_TMS.xml";
 	mainND.AddPandoraInstance("TMS", TMSPars);
 
 	// Create the TPC geometry using the tpcNames in the NDParameters geometry ROOT file.
@@ -62,6 +65,15 @@ int main(int argc, char *argv[])
 
 	// Create detector gaps
 	mainND.CreatePandoraDetectorGaps();
+
+	// Setup external & algorithm parameters for all Pandora instances
+	mainND.ConfigurePandoraInstances();
+
+	// Setup the event inputs
+	mainND.ConfigureEventInputs();
+
+	// Process the events
+	mainND.ProcessEvents();
 
 	std::cout<<"Done"<<std::endl;
     }

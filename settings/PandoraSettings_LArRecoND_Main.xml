@@ -1,0 +1,38 @@
+<pandora>
+    <!-- GLOBAL SETTINGS -->
+    <IsMonitoringEnabled>true</IsMonitoringEnabled>
+    <ShouldDisplayAlgorithmInfo>true</ShouldDisplayAlgorithmInfo>
+    <SingleHitTypeClusteringMode>true</SingleHitTypeClusteringMode>
+
+   <!-- ALGORITHM SETTINGS. Create various lists
+    <algorithm type = "LArPreProcessingThreeD">
+        <OutputCaloHitListNameU>CaloHitListU</OutputCaloHitListNameU>
+        <OutputCaloHitListNameV>CaloHitListV</OutputCaloHitListNameV>
+        <OutputCaloHitListNameW>CaloHitListW</OutputCaloHitListNameW>
+        <OutputCaloHitListName3D>CaloHitList3D</OutputCaloHitListName3D>
+        <FilteredCaloHitListName>CaloHitList2D</FilteredCaloHitListName>
+        <CurrentCaloHitListReplacement>CaloHitList2D</CurrentCaloHitListReplacement>
+    </algorithm>
+   -->
+
+   <algorithm type = "LArCreateMainNDLists">
+        <OutputCaloHitListNameU>CaloHitListU</OutputCaloHitListNameU>
+        <OutputCaloHitListNameV>CaloHitListV</OutputCaloHitListNameV>
+        <OutputCaloHitListNameW>CaloHitListW</OutputCaloHitListNameW>
+        <OutputCaloHitListName3D>CaloHitList3D</OutputCaloHitListName3D>
+   </algorithm>
+   
+    <!-- EVENT DISPLAY-->
+    <algorithm type = "LArVisualMonitoring">
+        <CaloHitListNames>CaloHitListU CaloHitListV CaloHitListW CaloHitList3D</CaloHitListNames>
+        <ShowDetector>true</ShowDetector>
+    </algorithm>
+
+    <!-- EVENT DISPLAY-->
+    <algorithm type = "LArVisualMonitoring">
+        <ShowCurrentPfos>true</ShowCurrentPfos>
+        <ShowDetector>true</ShowDetector>
+    </algorithm>
+
+</pandora>
+
