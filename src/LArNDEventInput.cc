@@ -188,7 +188,7 @@ int LArNDEventInput::CreateCaloHits(int eventIndex, int startHitIndex) const
     int hitCounter{startHitIndex};
     std::cout << "LArNDEventInput: startHitIndex = " << startHitIndex << std::endl;
 
-    const int nSP = 2000; //m_larsp->m_x->size();
+    const int nSP = m_larsp->m_x->size();
 
     // Stop processing the event if we have too many hits
     if (m_parameters.m_maxNHits > 0 && nSP > m_parameters.m_maxNHits)

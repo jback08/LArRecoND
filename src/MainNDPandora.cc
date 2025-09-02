@@ -280,7 +280,7 @@ void MainNDPandora::ProcessEvents()
     // End event, up to nEntries
     //const int endEvt = (startEvt + nProcess) < nEntries ? startEvt + nProcess : nEntries;
 
-    const int startEvt(0), endEvt(2);
+    const int startEvt(0), endEvt(1);
 
     std::cout << "Start event is " << startEvt << " and end event is " << endEvt - 1 << std::endl;
     NDEventInputMap::const_iterator iter;
@@ -310,11 +310,10 @@ void MainNDPandora::ProcessEvents()
             // Run the algorithms for this Pandora event instance
             const pandora::Pandora *pPandora = pEventInput->GetPandoraInstance();
             PANDORA_THROW_RESULT_IF(STATUS_CODE_SUCCESS, !=, PandoraApi::ProcessEvent(*pPandora));
-
-            // Copy PFOs to the main instance, renamed with the Pandora instance name prefix
-            this->CopyPFOs(pPandora);
         }
 
+        // Further process the event using the main instance, which should include copying
+        // the PFOs from the daughter instances to the main one using CreateMainNDListsAlgorithm
         PANDORA_THROW_RESULT_IF(STATUS_CODE_SUCCESS, !=, PandoraApi::ProcessEvent(*m_pMainPandora));
 
         // Reset for the next event
@@ -329,17 +328,6 @@ void MainNDPandora::ProcessEvents()
         }
         PANDORA_THROW_RESULT_IF(STATUS_CODE_SUCCESS, !=, PandoraApi::Reset(*m_pMainPandora));
     }
-}
-
-//------------------------------------------------------------------------------------------------------------------------------------------
-
-void MainNDPandora::CopyPFOs(const pandora::Pandora *const pPandora) const
-{
-    const PfoList *pPFOs{nullptr};
-    PANDORA_THROW_RESULT_IF(STATUS_CODE_SUCCESS, !=, PandoraApi::GetCurrentPfoList(*pPandora, pPFOs));
-
-    const int nPFOs = (pPFOs != nullptr) ? pPFOs->size() : 0;
-    std::cout << "Copying " << nPFOs << " PFOs from " << pPandora->GetName() << std::endl;
 }
 
 //------------------------------------------------------------------------------------------------------------------------------------------

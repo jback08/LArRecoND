@@ -137,13 +137,6 @@ private:
      */
     void ProcessExternalParameters(const pandora::Pandora *const pPandora, const NDParameters &parameters) const;
 
-    /**
-     *  @brief  Copy the PFOs from the pPandora instance to the main instance
-     *
-     *  @param  pPandora the address of the Pandora instance
-     */
-    void CopyPFOs(const pandora::Pandora *const pPandora) const;
-
     NDParameters m_mainParameters;           ///< The steering parameters
     const pandora::Pandora *m_pMainPandora;  ///< The main Pandora instance pointer
     NDParametersMap m_NDParametersMap;       ///< Map of NDParameters
