@@ -15,67 +15,89 @@
 #include "TApplication.h"
 #endif
 
+#include "json/json.hpp"
+
 #include <iostream>
 
 using namespace pandora;
 using namespace lar_nd_reco;
+using nlohmann::json;
 
 int main(int argc, char *argv[])
 {
     int errorNo(0);
 
+    const std::string configFileName{(argc > 1) ? argv[1] : "config/default.json"};
+    std::cout << "JSON ConfigFileName = " << configFileName << std::endl;
+
     try
     {
-        NDParameters parameters;
 
 #ifdef MONITORING
         TApplication *pTApplication = new TApplication("LArRecoNDApp", &argc, argv);
         pTApplication->SetReturnFromRun(kTRUE);
 #endif
 
-	parameters.m_settingsFile = "settings/PandoraSettings_LArRecoND_Main.xml";
-	MainNDPandora mainND("MainND", parameters);
+        json jsonConfig;
+        std::ifstream inputStr{configFileName};
+        inputStr >> jsonConfig;
 
-	NDParameters LArNDPars(parameters);
-	LArNDPars.m_volType = NDParameters::VolType::LArND;
-	LArNDPars.m_tpcName = "volTPCActive";
-	LArNDPars.m_inputFileName = "data/ND-LAr/MicroProdN3p1_NDLAr_2E18_FHC.flow.nu.0000001.FLOW.hdf5_hits_withMC.root";
-	LArNDPars.m_inputTreeName = "events";
-	LArNDPars.m_geomFileName = "data/ND-LAr/NDLArGeom.root";
-	LArNDPars.m_geomManagerName = "Default";
-	LArNDPars.m_settingsFile = "settings/PandoraSettings_LArRecoND_ThreeD_Evt.xml";
-	mainND.AddPandoraInstance("LArND", LArNDPars);
+        // Get the main Pandora instance
+        const auto mainInfo = jsonConfig["Main"];
+        std::cout << "mainInfo = " << mainInfo << std::endl;
+        const std::string mainName = mainInfo["Name"];
 
-	NDParameters TMSPars(parameters);
-	TMSPars.m_volType = NDParameters::VolType::TMS;
-	TMSPars.m_tpcName = "volTMS"; // scinBoxlvTMS
-	TMSPars.m_dataFormat = NDParameters::DataFormat::TMSMC;
-	TMSPars.m_inputFileName = "data/ND-LAr/MicroProdN3p1_NDLAr_2E18_FHC.tmsreco.nu.0000001.TMSRECOREADOUT.root";
-	TMSPars.m_inputTreeName = "TMS";
-	TMSPars.m_geomFileName = "data/ND-LAr/NDLArGeom.root";
-	TMSPars.m_geomManagerName = "Default";
-	TMSPars.m_lengthScale = 0.1; // mm to cm
-	TMSPars.m_energyScale = 1e-3; // MeV to GeV
-	TMSPars.m_settingsFile = "settings/PandoraSettings_LArRecoND_TMS.xml";
-	mainND.AddPandoraInstance("TMS", TMSPars);
+        NDParameters mainParameters;
+        mainParameters.m_settingsFile = mainInfo["Settings"];
+        MainNDPandora mainND(mainName, mainParameters);
 
-	// Create the TPC geometry using the tpcNames in the NDParameters geometry ROOT file.
-	// This creates TPCs for both the main & added Pandora instances
-	mainND.CreatePandoraTPCs();
+        const std::vector<std::string> instances = mainInfo["Instances"];
 
-	// Create detector gaps
-	mainND.CreatePandoraDetectorGaps();
+        // Add the other Pandora instances
+        for (const std::string instanceName : instances)
+        {
+            std::cout << "Setting up Pandora instance : " << instanceName << std::endl;
+            const auto info = jsonConfig[instanceName];
 
-	// Setup external & algorithm parameters for all Pandora instances
-	mainND.ConfigurePandoraInstances();
+            NDParameters NDPars(mainParameters);
+            NDPars.m_volType = NDPars.GetVolEnum(info["VolType"]);
+            NDPars.m_settingsFile = info["Settings"];
+            NDPars.m_inputFileName = info["InputFile"];
+            NDPars.m_inputTreeName = info["InputTree"];
+            NDPars.m_dataFormat = NDPars.GetDataEnum(info["DataFormat"]);
+            NDPars.m_geomFileName = info["GeomFile"];
+            NDPars.m_geomManagerName = info["GeomManager"];
+            NDPars.m_tpcName = info["TPCName"];
+            NDPars.m_lengthScale = info["LengthScale"];
+            NDPars.m_energyScale = info["EnergyScale"];
 
-	// Setup the event inputs
-	mainND.ConfigureEventInputs();
+            std::cout << "Settings file = " << NDPars.m_settingsFile << std::endl;
+            std::cout << "VolType = " << NDPars.m_volType << ", DataFormat = " << NDPars.m_dataFormat << std::endl;
+            std::cout << "Input file = " << NDPars.m_inputFileName << ", tree = " << NDPars.m_inputTreeName << std::endl;
+            std::cout << "Geometry file = " << NDPars.m_geomFileName << ", manager = " << NDPars.m_geomManagerName << std::endl;
+            std::cout << "TPC volume name = " << NDPars.m_tpcName << std::endl;
+            std::cout << "Length scale (cm) = " << NDPars.m_lengthScale << ", Energy scale (GeV) = " << NDPars.m_energyScale << std::endl;
 
-	// Process the events
-	mainND.ProcessEvents();
+            mainND.AddPandoraInstance(info["Name"], NDPars);
+        }
 
-	std::cout<<"Done"<<std::endl;
+        // Create the TPC geometry using the tpcNames in the NDParameters geometry ROOT file.
+        // This creates TPCs for both the main & added Pandora instances
+        mainND.CreatePandoraTPCs();
+
+        // Create detector gaps
+        mainND.CreatePandoraDetectorGaps();
+
+        // Setup external & algorithm parameters for all Pandora instances
+        mainND.ConfigurePandoraInstances();
+
+        // Setup the event inputs
+        mainND.ConfigureEventInputs();
+
+        // Process the events
+        mainND.ProcessEvents();
+
+        std::cout << "Done" << std::endl;
     }
     catch (const StatusCodeException &statusCodeException)
     {
@@ -84,7 +106,7 @@ int main(int argc, char *argv[])
     }
     catch (...)
     {
-        std::cerr << "Unknown exception: " << std::endl;
+        std::cerr << "Misconfigurated JSON file/parameters or unknown exception" << std::endl;
         errorNo = 1;
     }
 

@@ -37,6 +37,22 @@ public:
      */
     NDParameters();
 
+    /**
+     *  @brief  Get the volume enum integer given the name
+     *
+     *  @param  volName the volume type name
+     *  @return the volume enumeration integer
+     */
+    inline NDParameters::VolType GetVolEnum(const std::string &volName);
+
+    /**
+     *  @brief  Get the data format enum integer given the name
+     *
+     *  @param  formatName the data format name
+     *  @return the data format enumeration integer
+     */
+    inline NDParameters::DataFormat GetDataEnum(const std::string &formatName);
+
     std::string m_settingsFile;    ///< The path to the Pandora settings file
     std::string m_inputFileName;   ///< The path to the input file containing the events
     std::string m_inputTreeName;   ///< The name of the event TTree
@@ -65,6 +81,12 @@ public:
     bool m_shouldRunCosmicRecoOption;   ///< Whether to run cosmic-ray reconstruction for each slice
     bool m_shouldPerformSliceId;        ///< Whether to identify slices and select most appropriate pfos
     bool m_printOverallRecoStatus;      ///< Whether to print current operation status messages
+
+    // Internal maps associating strings to the enumerations
+    typedef std::map<std::string, NDParameters::VolType> VolTypeMap;
+    typedef std::map<std::string, NDParameters::DataFormat> DataFormatMap;
+    VolTypeMap m_VolTypeMap;
+    DataFormatMap m_DataFormatMap;
 };
 
 //------------------------------------------------------------------------------------------------------------------------------------------
@@ -94,8 +116,35 @@ inline NDParameters::NDParameters() :
     m_shouldRunNeutrinoRecoOption(true),
     m_shouldRunCosmicRecoOption(true),
     m_shouldPerformSliceId(true),
-    m_printOverallRecoStatus(false)
+    m_printOverallRecoStatus(false),
+    m_VolTypeMap{},
+    m_DataFormatMap{}
 {
+    m_VolTypeMap.insert(std::make_pair("Main", VolType::Main));
+    m_VolTypeMap.insert(std::make_pair("LArND", VolType::LArND));
+    m_VolTypeMap.insert(std::make_pair("TMS", VolType::TMS));
+
+    m_DataFormatMap.insert(std::make_pair("SP", DataFormat::SP));
+    m_DataFormatMap.insert(std::make_pair("SPMC", DataFormat::SPMC));
+    m_DataFormatMap.insert(std::make_pair("TMSMC", DataFormat::TMSMC));
+}
+
+inline NDParameters::VolType NDParameters::GetVolEnum(const std::string &volName)
+{
+    NDParameters::VolTypeMap::const_iterator iter = m_VolTypeMap.find(volName);
+    if (m_VolTypeMap.end() == iter)
+        throw pandora::StatusCodeException(pandora::STATUS_CODE_NOT_FOUND);
+
+    return iter->second;
+}
+
+inline NDParameters::DataFormat NDParameters::GetDataEnum(const std::string &volName)
+{
+    NDParameters::DataFormatMap::const_iterator iter = m_DataFormatMap.find(volName);
+    if (m_DataFormatMap.end() == iter)
+        throw pandora::StatusCodeException(pandora::STATUS_CODE_NOT_FOUND);
+
+    return iter->second;
 }
 
 } // namespace lar_nd_reco
