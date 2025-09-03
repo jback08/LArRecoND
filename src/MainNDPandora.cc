@@ -269,23 +269,33 @@ void MainNDPandora::ConfigureEventInputs()
 
 void MainNDPandora::ProcessEvents()
 {
-    std::cout << "ProcessEvents" << std::endl;
+    std::cout << "MainNDPandora::ProcessEvents()" << std::endl;
 
-    // ntuple index number 0 to N-1, event number any other integer
+    // Find the total number of events
+    const NDEventInput *pFirstEventInput = m_NDEventInputMap.begin()->second;
+    const int nEntries = (pFirstEventInput != nullptr) ? pFirstEventInput->GetNEntries() : 0;
+
+    // Check all ND event inputs have the same number of events
+    NDEventInputMap::const_iterator iter;
+    for (iter = m_NDEventInputMap.begin(); iter != m_NDEventInputMap.end(); ++iter)
+    {
+        const NDEventInput *pEventInput = iter->second;
+        const int checkNEntries = (pEventInput != nullptr) ? pEventInput->GetNEntries() : 0;
+        if (checkNEntries != nEntries)
+            std::cout << "Warning. NDEventInput " << iter->first << " has " << checkNEntries << " entries != " << nEntries << std::endl;
+    }
 
     // Starting event
-    //const int startEvt = m_mainParameters.m_nEventsToSkip > 0 ? m_mainParameters.m_nEventsToSkip : 0;
+    const int startEvt = m_mainParameters.m_nEventsToSkip > 0 ? m_mainParameters.m_nEventsToSkip : 0;
     // Number of events to process, up to nEntries
-    //const int nProcess = m_mainParameters.m_nEventsToProcess > 0 ? m_mainParameters.m_nEventsToProcess : nEntries;
+    const int nProcess = m_mainParameters.m_nEventsToProcess > 0 ? m_mainParameters.m_nEventsToProcess : nEntries;
     // End event, up to nEntries
-    //const int endEvt = (startEvt + nProcess) < nEntries ? startEvt + nProcess : nEntries;
-
-    const int startEvt(0), endEvt(1);
+    const int endEvt = (startEvt + nProcess) < nEntries ? startEvt + nProcess : nEntries;
 
     std::cout << "Start event is " << startEvt << " and end event is " << endEvt - 1 << std::endl;
-    NDEventInputMap::const_iterator iter;
     int nTotalHits{0}, nTotalTracks{0};
 
+    // Main event loop, which assumes the same event numbers are used for all Pandora inputs
     for (int iEvt = startEvt; iEvt < endEvt; iEvt++)
     {
         std::cout << std::endl << "   PROCESSING EVENT: " << iEvt << std::endl << std::endl;

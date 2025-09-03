@@ -79,6 +79,16 @@ public:
         return m_pPandora;
     }
 
+    /**
+     *  @brief  Get the total number of event entries
+     *
+     *  @return the total number of events
+     */
+    int GetNEntries() const
+    {
+        return m_nEntries;
+    }
+
 protected:
     /**
      *  @brief  Initialization

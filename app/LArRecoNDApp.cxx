@@ -49,6 +49,10 @@ int main(int argc, char *argv[])
 
         NDParameters mainParameters;
         mainParameters.m_settingsFile = mainInfo["Settings"];
+	mainParameters.m_nEventsToProcess = mainInfo["EventsToProcess"];
+	mainParameters.m_nEventsToSkip = mainInfo["EventsToSkip"];
+	mainParameters.m_maxNHits = mainInfo["MaxNHits"];
+	mainParameters.m_minNHits = mainInfo["MinNHits"];
         MainNDPandora mainND(mainName, mainParameters);
 
         const std::vector<std::string> instances = mainInfo["Instances"];
@@ -70,6 +74,14 @@ int main(int argc, char *argv[])
             NDPars.m_tpcName = info["TPCName"];
             NDPars.m_lengthScale = info["LengthScale"];
             NDPars.m_energyScale = info["EnergyScale"];
+
+	    // Set the event info using the main Pandora instance.
+	    // This assumes the input files for each Pandora instance have
+	    // the same event number ordering
+	    NDPars.m_nEventsToProcess = mainParameters.m_nEventsToProcess;
+	    NDPars.m_nEventsToSkip = mainParameters.m_nEventsToSkip;
+	    NDPars.m_maxNHits = mainParameters.m_maxNHits;
+	    NDPars.m_minNHits = mainParameters.m_minNHits;
 
             std::cout << "Settings file = " << NDPars.m_settingsFile << std::endl;
             std::cout << "VolType = " << NDPars.m_volType << ", DataFormat = " << NDPars.m_dataFormat << std::endl;

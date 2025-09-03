@@ -197,11 +197,10 @@ int LArNDEventInput::CreateCaloHits(int eventIndex, int startHitIndex) const
         return hitCounter;
     }
 
-    // Also stop processing the event if it has less than 2 hits (to match the H5-to-ROOT script logic).
-    // It has a single trigger ntuple entry but the event is empty, so we can't make CaloHits
-    if (nSP < 2)
+    // Also stop processing the event if it has too few hits (we can't make CaloHits for essentially empty events)
+    if (nSP < m_parameters.m_minNHits)
     {
-        std::cout << "SKIPPING EVENT: number of space points " << nSP << " < 2" << std::endl;
+        std::cout << "SKIPPING EVENT: number of space points " << nSP << " < " << m_parameters.m_minNHits << std::endl;
         return hitCounter;
     }
 
