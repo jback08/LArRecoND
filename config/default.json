@@ -6,7 +6,9 @@
 	"EventsToProcess" : 1,
 	"EventsToSkip" : 0,
 	"MaxNHits" : -1,
-	"MinNHits" : 2
+	"MinNHits" : 2,
+	"RecoOption" : "AllHitsSliceNu",
+	"ViewOption" : "Both"
     },
     "LArND" :
     {

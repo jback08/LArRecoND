@@ -53,6 +53,11 @@ int main(int argc, char *argv[])
         mainParameters.m_nEventsToSkip = mainInfo["EventsToSkip"];
         mainParameters.m_maxNHits = mainInfo["MaxNHits"];
         mainParameters.m_minNHits = mainInfo["MinNHits"];
+        mainParameters.SetViewOption(mainInfo["ViewOption"]);
+        const bool gotMainRecoOption = mainParameters.SetRecoOption(mainInfo["RecoOption"]);
+        if (!gotMainRecoOption)
+            return 1;
+
         MainNDPandora mainND(mainName, mainParameters);
 
         const std::vector<std::string> instances = mainInfo["Instances"];
@@ -74,6 +79,17 @@ int main(int argc, char *argv[])
             NDPars.m_tpcName = info["TPCName"];
             NDPars.m_lengthScale = info["LengthScale"];
             NDPars.m_energyScale = info["EnergyScale"];
+
+            // This instance may have different reco options compared to the main one
+            if (info.contains("RecoOption"))
+            {
+                const bool gotRecoOption = NDPars.SetRecoOption(info["RecoOption"]);
+                if (!gotRecoOption)
+                    return 1;
+            }
+            // Instance may use different projection views as well
+            if (info.contains("ViewOption"))
+                NDPars.SetViewOption(info["ViewOption"]);
 
             // Set the event info using the main Pandora instance.
             // This assumes the input files for each Pandora instance have
@@ -122,6 +138,5 @@ int main(int argc, char *argv[])
         errorNo = 1;
     }
 
-    // Cleanup
     return errorNo;
 }

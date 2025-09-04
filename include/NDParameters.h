@@ -38,6 +38,23 @@ public:
     NDParameters();
 
     /**
+     *  @brief  Set various parameters depending on what reco option we have
+     *
+     *  @param  recoOption the reco option string
+     *  @return if the option has been recognised
+     *
+     */
+    inline bool SetRecoOption(const std::string &recoOption);
+
+    /**
+     *  @brief  Set the projection view option
+     *
+     *  @param  viewOption the view option string
+     *
+     */
+    inline void SetViewOption(const std::string &viewOption);
+
+    /**
      *  @brief  Get the volume enum integer given the name
      *
      *  @param  volName the volume type name
@@ -127,6 +144,132 @@ inline NDParameters::NDParameters() :
     m_DataFormatMap.insert(std::make_pair("SP", DataFormat::SP));
     m_DataFormatMap.insert(std::make_pair("SPMC", DataFormat::SPMC));
     m_DataFormatMap.insert(std::make_pair("TMSMC", DataFormat::TMSMC));
+}
+
+inline bool NDParameters::SetRecoOption(const std::string &recoOption)
+{
+    std::cout << "NDParameters::SetRecoOption is " << recoOption << std::endl;
+    std::string chosenRecoOption(recoOption);
+    std::transform(chosenRecoOption.begin(), chosenRecoOption.end(), chosenRecoOption.begin(), ::tolower);
+    bool processed(true);
+
+    if ("full" == chosenRecoOption)
+    {
+        m_shouldRunAllHitsCosmicReco = true;
+        m_shouldRunStitching = true;
+        m_shouldRunCosmicHitRemoval = true;
+        m_shouldRunSlicing = true;
+        m_shouldRunNeutrinoRecoOption = true;
+        m_shouldRunCosmicRecoOption = true;
+        m_shouldPerformSliceId = true;
+    }
+    else if ("allhitscr" == chosenRecoOption)
+    {
+        m_shouldRunAllHitsCosmicReco = true;
+        m_shouldRunStitching = true;
+        m_shouldRunCosmicHitRemoval = false;
+        m_shouldRunSlicing = false;
+        m_shouldRunNeutrinoRecoOption = false;
+        m_shouldRunCosmicRecoOption = false;
+        m_shouldPerformSliceId = false;
+    }
+    else if ("nostitchingcr" == chosenRecoOption)
+    {
+        m_shouldRunAllHitsCosmicReco = false;
+        m_shouldRunStitching = false;
+        m_shouldRunCosmicHitRemoval = false;
+        m_shouldRunSlicing = false;
+        m_shouldRunNeutrinoRecoOption = false;
+        m_shouldRunCosmicRecoOption = true;
+        m_shouldPerformSliceId = false;
+    }
+    else if ("allhitsnu" == chosenRecoOption)
+    {
+        m_shouldRunAllHitsCosmicReco = false;
+        m_shouldRunStitching = false;
+        m_shouldRunCosmicHitRemoval = false;
+        m_shouldRunSlicing = false;
+        m_shouldRunNeutrinoRecoOption = true;
+        m_shouldRunCosmicRecoOption = false;
+        m_shouldPerformSliceId = false;
+    }
+    else if ("crremhitsslicecr" == chosenRecoOption)
+    {
+        m_shouldRunAllHitsCosmicReco = true;
+        m_shouldRunStitching = true;
+        m_shouldRunCosmicHitRemoval = true;
+        m_shouldRunSlicing = true;
+        m_shouldRunNeutrinoRecoOption = false;
+        m_shouldRunCosmicRecoOption = true;
+        m_shouldPerformSliceId = false;
+    }
+    else if ("crremhitsslicenu" == chosenRecoOption)
+    {
+        m_shouldRunAllHitsCosmicReco = true;
+        m_shouldRunStitching = true;
+        m_shouldRunCosmicHitRemoval = true;
+        m_shouldRunSlicing = true;
+        m_shouldRunNeutrinoRecoOption = true;
+        m_shouldRunCosmicRecoOption = false;
+        m_shouldPerformSliceId = false;
+    }
+    else if ("allhitsslicecr" == chosenRecoOption)
+    {
+        m_shouldRunAllHitsCosmicReco = false;
+        m_shouldRunStitching = false;
+        m_shouldRunCosmicHitRemoval = false;
+        m_shouldRunSlicing = true;
+        m_shouldRunNeutrinoRecoOption = false;
+        m_shouldRunCosmicRecoOption = true;
+        m_shouldPerformSliceId = false;
+    }
+    else if ("allhitsslicenu" == chosenRecoOption)
+    {
+        m_shouldRunAllHitsCosmicReco = false;
+        m_shouldRunStitching = false;
+        m_shouldRunCosmicHitRemoval = false;
+        m_shouldRunSlicing = true;
+        m_shouldRunNeutrinoRecoOption = true;
+        m_shouldRunCosmicRecoOption = false;
+        m_shouldPerformSliceId = false;
+    }
+    else
+    {
+        std::cout << "Unrecognized reconstruction option: " << recoOption << std::endl;
+        std::cout << "Choose: Full, AllHitsSliceNu, AllHitsNu, AllHitsCR, CRRemHitsSliceCR, CRRemHitsSliceNu, or AllHitsSliceCR" << std::endl;
+        processed = false;
+    }
+
+    return processed;
+}
+
+inline void NDParameters::SetViewOption(const std::string &viewOption)
+{
+    std::cout << "NDParameters::SetViewOption is " << viewOption << std::endl;
+    std::string chosenViewOption(viewOption);
+    std::transform(chosenViewOption.begin(), chosenViewOption.end(), chosenViewOption.begin(), ::tolower);
+
+    if (chosenViewOption == "3d")
+    {
+        // 3D hits only
+        std::cout << "Using 3D hits" << std::endl;
+        m_useLArTPC = false;
+        m_use3D = true;
+    }
+    else if (chosenViewOption == "lartpc")
+    {
+        // LArTPC 2D projected hits only
+        std::cout << "Using LArTPC projections" << std::endl;
+        m_useLArTPC = true;
+        m_use3D = false;
+    }
+    else
+    {
+        // Both LArTPC 2D projections and 3D hits (default)
+        std::cout << "Using LArTPC projections _and_ 3D hits" << std::endl;
+        m_useLArTPC = true;
+        m_use3D = true;
+    }
 }
 
 inline NDParameters::VolType NDParameters::GetVolEnum(const std::string &volName)

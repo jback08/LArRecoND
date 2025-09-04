@@ -1,19 +1,8 @@
 <pandora>
     <!-- GLOBAL SETTINGS -->
     <IsMonitoringEnabled>true</IsMonitoringEnabled>
-    <ShouldDisplayAlgorithmInfo>true</ShouldDisplayAlgorithmInfo>
+    <ShouldDisplayAlgorithmInfo>false</ShouldDisplayAlgorithmInfo>
     <SingleHitTypeClusteringMode>true</SingleHitTypeClusteringMode>
-
-   <!-- ALGORITHM SETTINGS. Create various lists
-    <algorithm type = "LArPreProcessingThreeD">
-        <OutputCaloHitListNameU>CaloHitListU</OutputCaloHitListNameU>
-        <OutputCaloHitListNameV>CaloHitListV</OutputCaloHitListNameV>
-        <OutputCaloHitListNameW>CaloHitListW</OutputCaloHitListNameW>
-        <OutputCaloHitListName3D>CaloHitList3D</OutputCaloHitListName3D>
-        <FilteredCaloHitListName>CaloHitList2D</FilteredCaloHitListName>
-        <CurrentCaloHitListReplacement>CaloHitList2D</CurrentCaloHitListReplacement>
-    </algorithm>
-   -->
 
    <algorithm type = "LArCreateMainNDLists">
         <OutputCaloHitListNameU>CaloHitListU</OutputCaloHitListNameU>
