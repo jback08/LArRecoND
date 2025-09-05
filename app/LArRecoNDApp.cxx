@@ -45,7 +45,6 @@ int main(int argc, char *argv[])
         // Get the main Pandora instance
         const auto mainInfo = jsonConfig["Main"];
         std::cout << "mainInfo = " << mainInfo << std::endl;
-        const std::string mainName = mainInfo["Name"];
 
         NDParameters mainParameters;
         mainParameters.m_settingsFile = mainInfo["Settings"];
@@ -58,7 +57,7 @@ int main(int argc, char *argv[])
         if (!gotMainRecoOption)
             return 1;
 
-        MainNDPandora mainND(mainName, mainParameters);
+        MainNDPandora mainND("Main", mainParameters);
 
         const std::vector<std::string> instances = mainInfo["Instances"];
 

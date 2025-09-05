@@ -1,6 +1,5 @@
 {
     "Main" : {
-	"Name" : "MainND",
 	"Settings" : "settings/PandoraSettings_LArRecoND_Main.xml",
 	"Instances" : ["LArND", "TMS"],
 	"EventsToProcess" : 1,
