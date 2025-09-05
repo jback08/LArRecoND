@@ -12,7 +12,6 @@
     },
     "LArND" :
     {
-	"Name" : "LArND",
 	"VolType" : "LArND",
 	"Settings" : "settings/PandoraSettings_LArRecoND_ThreeD_Evt.xml",
 	"InputFile" : "data/ND-LAr/MicroProdN3p1_NDLAr_2E18_FHC.flow.nu.0000001.FLOW.hdf5_hits_withMC.root",
@@ -26,7 +25,6 @@
     },
     "TMS" :
     {
-	"Name" : "TMS",
 	"VolType" : "TMS",
 	"Settings" : "settings/PandoraSettings_LArRecoND_TMS.xml",
 	"InputFile" : "data/ND-LAr/MicroProdN3p1_NDLAr_2E18_FHC.tmsreco.nu.0000001.TMSRECOREADOUT.root",
@@ -36,6 +34,7 @@
 	"GeomManager" : "Default",
 	"TPCName" : "volTMS",
 	"LengthScale" : 0.1,
-	"EnergyScale" : 1e-3
+	"EnergyScale" : 1e-3,
+	"RecoOption" : "AllHitsSliceCR"
     }
 }

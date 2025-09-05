@@ -27,7 +27,7 @@ int main(int argc, char *argv[])
 {
     int errorNo(0);
 
-    const std::string configFileName{(argc > 1) ? argv[1] : "config/default.json"};
+    const std::string configFileName{(argc > 1) ? argv[1] : "config/LArND_TMS.json"};
     std::cout << "JSON ConfigFileName = " << configFileName << std::endl;
 
     try
@@ -106,7 +106,7 @@ int main(int argc, char *argv[])
             std::cout << "TPC volume name = " << NDPars.m_tpcName << std::endl;
             std::cout << "Length scale (cm) = " << NDPars.m_lengthScale << ", Energy scale (GeV) = " << NDPars.m_energyScale << std::endl;
 
-            mainND.AddPandoraInstance(info["Name"], NDPars);
+            mainND.AddPandoraInstance(instanceName, NDPars);
         }
 
         // Create the TPC geometry using the tpcNames in the NDParameters geometry ROOT file.
