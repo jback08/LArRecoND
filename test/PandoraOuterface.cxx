@@ -248,6 +248,10 @@ float LifetimeCorrectionFactor(const std::vector<float> &detAnodes, const float 
         if (thisDist < driftDist)
             driftDist = thisDist;
     }
+    // Safeguard to return 1 for the correction factor if no sensible drift distance was found
+    if ( detAnodes.size()==0 || driftDist > std::numeric_limits<float>::max()-1. ) {
+      return 1.;
+    }
     float tDrift = driftDist / driftSpeed;
     return TMath::Exp(tDrift / lifetime);
 }
