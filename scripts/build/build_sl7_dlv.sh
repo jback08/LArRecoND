@@ -32,7 +32,7 @@ TORCH_FLAGS="-DPANDORA_LIBTORCH=ON -DCMAKE_PREFIX_PATH=${CVMFS_PREFIX_PATH}"
 
 # Build LArContent and LArRecoND with DL flags
 BuildLArContent $EIGEN_FLAG $TORCH_FLAGS
-BuildLArRecoND $TORCH_FLAGS -DLArDLContent_DIR=$PANDORA_PROJECT_DIR/LArContent/
+BuildLArRecoND $TORCH_FLAGS -DLArDLContent_DIR=$PANDORA_PROJECT_DIR/LArContent/build/install/lib/cmake/LArDLContent
 
 # Download the ML Data bits
 GetMachineLearningData

@@ -43,7 +43,7 @@ BuildLArContent $EIGEN_FLAG $TORCH_FLAGS
 
 # Build LArRecoND with DL and EDep flags
 EDEP_FLAGS="-DUSE_EDEPSIM=ON -DEDepSim_DIR=$PANDORA_PROJECT_DIR/edep-sim/build -DGeant4_DIR=${GEANT4_DIR}"
-BuildLArRecoND $TORCH_FLAGS $EDEP_FLAGS -DLArDLContent_DIR=$PANDORA_PROJECT_DIR/LArContent/
+BuildLArRecoND $TORCH_FLAGS $EDEP_FLAGS -DLArDLContent_DIR=$PANDORA_PROJECT_DIR/LArContent/build/install/lib/cmake/LArDLContent
 
 # Download the ML Data bits
 GetMachineLearningData
