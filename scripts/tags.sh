@@ -5,7 +5,7 @@ export PANDORA_MONITORING_VERSION=v05-00-00
 export PANDORA_LAR_CONTENT_VERSION=v05_03_00
 export PANDORA_LAR_MLDATA_VERSION=v05-03-00
 export PANDORA_LAR_RECO_ND_VERSION=v01-04-03
-export TORCH_VERSION="2.0.1"
+export TORCH_VERSION=2.2.0
 export EIGEN_VERSION=3.4.0
 
 # Set main working directory by optional run argument

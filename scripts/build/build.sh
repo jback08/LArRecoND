@@ -36,7 +36,7 @@ if [ ! -d "$PANDORA_PROJECT_DIR/libtorch" ]; then
         if [ "$ARCH_TYPE" = "arm64" ]; then
             TORCH_URL="https://download.pytorch.org/libtorch/cpu/libtorch-macos-arm64-${TORCH_VERSION}.zip"
         else
-            TORCH_URL="https://download.pytorch.org/libtorch/cpu/libtorch-macos-${TORCH_VERSION}.zip"
+            TORCH_URL="https://download.pytorch.org/libtorch/cpu/libtorch-macos-x86_64-${TORCH_VERSION}.zip"
         fi
     elif [ "$OS_TYPE" = "Linux" ]; then
         TORCH_URL="https://download.pytorch.org/libtorch/cpu/libtorch-cxx11-abi-shared-with-deps-${TORCH_VERSION}%2Bcpu.zip"
