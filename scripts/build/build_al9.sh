@@ -29,7 +29,7 @@ TORCH_FLAG="-DTorch_DIR=${TORCH_PREFIX}/lib/python3.9/site-packages/torch/share/
 
 # Enable LibTorch for LArContent and LArRecoND builds
 BuildLArContent -DPANDORA_LIBTORCH=ON $TORCH_FLAG
-BuildLArRecoND -DPANDORA_LIBTORCH=ON -DLArDLContent_DIR=$PANDORA_PROJECT_DIR/LArContent/build/install/lib64/cmake/LArDLContent $TORCH_FLAG
+BuildLArRecoND -DPANDORA_LIBTORCH=ON -DLArDLContent_DIR=$PANDORA_PROJECT_DIR/LArContent/build/install/lib/cmake/LArDLContent $TORCH_FLAG
 
 # Finally, download the ML Data bits.
 GetMachineLearningData
