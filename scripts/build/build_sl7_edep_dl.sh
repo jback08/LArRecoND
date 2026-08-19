@@ -34,7 +34,7 @@ BuildPandoraMonitoring
 BuildEigen3
 
 # Set DL and Eigen variables
-CVMFS_PREFIX_PATH="/cvmfs/larsoft.opensciencegrid.org/products/libtorch/v1_6_0d/Linux64bit+3.10-2.17-e20/share/cmake;/cvmfs/larsoft.opensciencegrid.org/products/protobuf/v3_12_3a/Linux64bit+3.10-2.17-e20/lib/cmake/protobuf"
+CVMFS_PREFIX_PATH="/cvmfs/larsoft.opensciencegrid.org/products/libtorch/v2_1_1b/Linux64bit+3.10-2.17-e26/share/cmake;/cvmfs/larsoft.opensciencegrid.org/products/protobuf/v3_12_3a/Linux64bit+3.10-2.17-e20/lib/cmake/protobuf"
 EIGEN_FLAG="-DEigen3_DIR=$PANDORA_PROJECT_DIR/Eigen3/share/eigen3/cmake/"
 TORCH_FLAGS="-DPANDORA_LIBTORCH=ON -DCMAKE_PREFIX_PATH=${CVMFS_PREFIX_PATH}"
 
