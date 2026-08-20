@@ -27,21 +27,12 @@ GetPandoraProjectDir() {
     fi
 }
 
-# Dynamically determine the number of cores for parallel compilation
-if [ "$(uname -s)" = "Darwin" ]; then
-    # macOS - Personal machine likely, so use it all.
-    N_CORES=$(sysctl -n hw.logicalcpu)
-elif command -v nproc &> /dev/null; then
-    # Linux (Respects grid job CPU affinity/cgroups)
-    N_CORES=$(nproc)
-else
-    # Fallback just in case
-    N_CORES=4
-fi
-
 # Define any common build flags here.
-COMMON_CMAKE_FLAGS="-DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_INSTALL_LIBDIR=lib -DCMAKE_INSTALL_PREFIX=install"
-MAKE_COMMAND="cmake --build . --target install -j${N_CORES}"
+COMMON_CMAKE_FLAGS="-DCMAKE_BUILD_TYPE=RelWithDebInfo"
+COMMON_CMAKE_FLAGS="${COMMON_CMAKE_FLAGS} -DCMAKE_INSTALL_LIBDIR=lib"
+COMMON_CMAKE_FLAGS="${COMMON_CMAKE_FLAGS} -DCMAKE_INSTALL_PREFIX=install"
+COMMON_CMAKE_FLAGS="${COMMON_CMAKE_FLAGS} -DCMAKE_INSTALL_RPATH_USE_LINK_PATH=TRUE"
+MAKE_COMMAND="cmake --build . --target install -j4"
 
 BuildPandoraPFA() {
     RunWithError cd $PANDORA_PROJECT_DIR
