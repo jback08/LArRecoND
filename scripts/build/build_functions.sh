@@ -35,6 +35,12 @@ COMMON_CMAKE_FLAGS="${COMMON_CMAKE_FLAGS} -DCMAKE_INSTALL_RPATH_USE_LINK_PATH=TR
 MAKE_COMMAND="cmake --build . --target install -j4"
 
 BuildPandoraPFA() {
+
+    if [ -d "$PANDORA_PROJECT_DIR/PandoraPFA" ]; then
+        echo "PandoraPFA directory already exists. Skipping!"
+        return
+    fi
+
     RunWithError cd $PANDORA_PROJECT_DIR
     RunWithError git clone https://github.com/PandoraPFA/PandoraPFA.git
     RunWithError cd PandoraPFA
@@ -53,6 +59,12 @@ BuildEigen3() {
 }
 
 BuildPandoraSDK() {
+
+    if [ -d "$PANDORA_PROJECT_DIR/PandoraSDK" ]; then
+        echo "PandoraSDK directory already exists. Skipping!"
+        return
+    fi
+
     RunWithError cd $PANDORA_PROJECT_DIR
     RunWithError git clone https://github.com/PandoraPFA/PandoraSDK.git
     RunWithError cd PandoraSDK
@@ -64,6 +76,12 @@ BuildPandoraSDK() {
 }
 
 BuildPandoraMonitoring() {
+
+    if [ -d "$PANDORA_PROJECT_DIR/PandoraMonitoring" ]; then
+        echo "PandoraMonitoring directory already exists. Skipping!"
+        return
+    fi
+
     RunWithError cd $PANDORA_PROJECT_DIR
     RunWithError git clone https://github.com/PandoraPFA/PandoraMonitoring.git
     RunWithError cd PandoraMonitoring
@@ -76,6 +94,12 @@ BuildPandoraMonitoring() {
 }
 
 BuildLArContent() {
+
+    if [ -d "$PANDORA_PROJECT_DIR/LArContent" ]; then
+        echo "LArContent directory already exists. Skipping!"
+        return
+    fi
+
     RunWithError cd $PANDORA_PROJECT_DIR
     RunWithError git clone https://github.com/PandoraPFA/LArContent.git
     RunWithError cd LArContent
@@ -105,6 +129,12 @@ BuildLArRecoND() {
 }
 
 GetMachineLearningData() {
+
+    if [ -d "$PANDORA_PROJECT_DIR/LArMachineLearningData" ]; then
+        echo "LArMachineLearningData directory already exists. Skipping!"
+        return
+    fi
+
     RunWithError cd $PANDORA_PROJECT_DIR
     RunWithError git clone https://github.com/PandoraPFA/LArMachineLearningData.git
     RunWithError cd LArMachineLearningData

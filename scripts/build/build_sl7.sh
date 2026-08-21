@@ -35,5 +35,5 @@ BuildLArRecoND
 GetMachineLearningData
 
 cd $PANDORA_PROJECT_DIR
-echo "Remember to source scripts/tags.sh to setup your environment before running!"
+echo "Remember to source LArRecoND/scripts/tags.sh to setup your environment before running!"
 
