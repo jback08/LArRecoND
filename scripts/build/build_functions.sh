@@ -49,12 +49,31 @@ BuildPandoraPFA() {
 
 BuildEigen3() {
     RunWithError cd $PANDORA_PROJECT_DIR
-    RunWithError git clone https://gitlab.com/libeigen/eigen.git
+
+    # Download Eigen tarball, rather than git clone, as the repo history is massive.
+    if [ ! -d "eigen" ]; then
+        echo "Downloading Eigen ${EIGEN_VERSION}..."
+        EIGEN_TARBALL="eigen-${EIGEN_VERSION}.tar.gz"
+        EIGEN_URL="https://gitlab.com/libeigen/eigen/-/archive/${EIGEN_VERSION}/${EIGEN_TARBALL}"
+
+        RunWithError curl -L -o $EIGEN_TARBALL $EIGEN_URL
+        RunWithError tar -xzf $EIGEN_TARBALL
+        RunWithError rm $EIGEN_TARBALL
+        RunWithError mv eigen-${EIGEN_VERSION} eigen
+    fi
+
     RunWithError cd eigen
-    RunWithError git checkout $EIGEN3_VERSION
     RunWithError mkdir build
     RunWithError cd build
-    RunWithError cmake $COMMON_CMAKE_FLAGS ..
+    EIGEN_BUILD_FLAGS="-DBUILD_TESTING=OFF"
+    EIGEN_BUILD_FLAGS="${EIGEN_BUILD_FLAGS} -DEIGEN_BUILD_TESTING=OFF"
+    EIGEN_BUILD_FLAGS="${EIGEN_BUILD_FLAGS} -DEIGEN_BUILD_DOC=OFF"
+    EIGEN_BUILD_FLAGS="${EIGEN_BUILD_FLAGS} -DEIGEN_BUILD_BLAS=OFF"
+    EIGEN_BUILD_FLAGS="${EIGEN_BUILD_FLAGS} -DEIGEN_BUILD_LAPACK=OFF"
+    EIGEN_BUILD_FLAGS="${EIGEN_BUILD_FLAGS} -DEIGEN_BUILD_DEMOS=OFF"
+    EIGEN_BUILD_FLAGS="${EIGEN_BUILD_FLAGS} -DCMAKE_INSTALL_PREFIX=install"
+    EIGEN_BUILD_FLAGS="${EIGEN_BUILD_FLAGS} -DCMAKE_INSTALL_LIBDIR=lib"
+    RunWithError cmake $EIGEN_BUILD_FLAGS ..
     RunWithError $MAKE_COMMAND
 }
 
